@@ -1,4 +1,5 @@
 WORD, NAME, NEWLINE, IO_NUMBER, AND_IF, OR_IF, DLESS,  DGREAT,  LESSAND,  GREATAND  = 'WORD', 'NAME', 'NEWLINE', 'IO_NUMBER', 'AND_IF', 'OR_IF', 'DLESS',  'DGREAT',  'LESSAND',  'GREATAND'
+import copy
 
 class Token:
     def __init__(self, type):
@@ -13,7 +14,14 @@ class Lexer:
         self.pos = 0
         self.text = text
         self.current_char = self.text[self.pos]
-        self.currentToken = Token(None);
+        self.current_token = Token(None)
+        self.operators = [
+                '||',
+                '&&',
+                '<<',
+                '&>',
+                '<&',
+                ]
 
     def advance(self):
         if (self.pos < len(self.text) - 1):
@@ -25,18 +33,47 @@ class Lexer:
     def error(self):
         raise Exception ('Invalid Token')
 
+    def if_new_op(self):
+        for op in self.operators:
+            if op[0] == self.current_char:
+                return 1
+        return 0
+
+    def if_op_continuation(self):
+        for op in self.operators:
+            if op.startswith(self.current_token.value + self.current_char):
+                return 1
+        return 0
+
+
     def get_next_token(self):
         while self.current_char:
 
-            if self.current_char == '\n':
-                self.advance()
-                return self.currentToken
-            
-            else:
-                self.currentToken.addChar(self.current_char)
-                self.advance()
+            # If current char is part of an operator
+            if len(self.current_token.value) > 0 and self.if_op_continuation():
+                self.current_token.addChar(self.current_char)
 
-        return self.currentToken
+            # If current char is the end of an operator
+            elif len(self.current_token.value) > 0 and self.if_op_continuation() == 0:
+                print('break')
+                self.advance()
+                return self.current_token
+            
+            # If current char is part of the first operator
+            elif self.pos == 0 and self.if_new_op():
+                self.current_token = Token(None)
+                self.current_token.addChar(self.current_char)
+
+            # If current char is the start of new operator
+            elif self.if_new_op():
+                token_cp = copy.deepcopy(self.current_token)
+                self.current_token = Token(None)
+                self.current_token.addChar(self.current_char)
+                self.advance()
+                return token_cp
+
+            self.advance()
+        return None
 
 def main():
     while True:
@@ -48,10 +85,8 @@ def main():
             continue
         lexer = Lexer(text)
         token = lexer.get_next_token()
-        print(token.value)
-        #interpreter = Interpreter(lexer)
-        #result = interpreter.expr()
-        #print(result)
+        while token:
+            token = lexer.get_next_token()
 
 
 if __name__ == '__main__':
