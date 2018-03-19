@@ -49,8 +49,13 @@ class Lexer:
     def get_next_token(self):
         while self.current_char:
 
+            if (self.current_char == '\n'):
+                self.advance()
+                return self.current_token
+
             # If current char is part of an operator
             if len(self.current_token.value) > 0 and self.if_op_continuation():
+                print('continuation')
                 self.current_token.addChar(self.current_char)
 
             # If current char is the end of an operator
@@ -61,11 +66,13 @@ class Lexer:
             
             # If current char is part of the first operator
             elif self.pos == 0 and self.if_new_op():
+                print('new_op_first')
                 self.current_token = Token(None)
                 self.current_token.addChar(self.current_char)
 
             # If current char is the start of new operator
             elif self.if_new_op():
+                print('new_op')
                 token_cp = copy.deepcopy(self.current_token)
                 self.current_token = Token(None)
                 self.current_token.addChar(self.current_char)
@@ -86,6 +93,7 @@ def main():
         lexer = Lexer(text)
         token = lexer.get_next_token()
         while token:
+            lexer.current_token = Token(None)
             token = lexer.get_next_token()
 
 
