@@ -45,6 +45,9 @@ class Lexer:
                 return 1
         return 0
 
+    def whitespace(self):
+        while self.current_char and self.current_char.isspace():
+            self.advance()
 
     def get_next_token(self):
         while self.current_char:
@@ -56,7 +59,7 @@ class Lexer:
                 return self.current_token
 
             #2:: If current char is part of an operator
-            if len(self.current_token.value) > 0 and self.if_op_continuation():
+            elif len(self.current_token.value) > 0 and self.if_op_continuation():
                 print('continuation')
                 self.current_token.addChar(self.current_char)
 
@@ -69,17 +72,20 @@ class Lexer:
             #6:: If current char is part of the first operator
             elif self.pos == 0 and self.if_new_op():
                 print('new_op_first')
-                self.current_token = Token(None)
                 self.current_token.addChar(self.current_char)
 
             #6:: If current char is the start of new operator
             elif self.if_new_op():
                 print('new_op')
                 token_cp = copy.deepcopy(self.current_token)
-                self.current_token = Token(None)
                 self.current_token.addChar(self.current_char)
                 self.advance()
                 return token_cp
+
+            #7:: If blank
+            elif self.current_char.isspace():
+                self.whitespace()
+                return self.current_token
 
             self.advance()
         return None
