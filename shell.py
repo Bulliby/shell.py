@@ -1,4 +1,4 @@
-WORD, NAME, NEWLINE, IO_NUMBER, AND_IF, OR_IF, DLESS,  DGREAT,  LESSAND,  GREATAND  = 'WORD', 'NAME', 'NEWLINE', 'IO_NUMBER', 'AND_IF', 'OR_IF', 'DLESS',  'DGREAT',  'LESSAND',  'GREATAND'
+WORD, NAME, NEWLINE, IO_NUMBER, AND_IF, OR_IF, DLESS,  DGREAT,  LESSAND,  GREATAND, OPERATOR = 'WORD', 'NAME', 'NEWLINE', 'IO_NUMBER', 'AND_IF', 'OR_IF', 'DLESS',  'DGREAT',  'LESSAND',  'GREATAND', 'OPERATOR'
 import copy
 
 class Token:
@@ -77,15 +77,23 @@ class Lexer:
             #6:: If current char is the start of new operator
             elif self.if_new_op():
                 print('new_op')
-                token_cp = copy.deepcopy(self.current_token)
                 self.current_token.addChar(self.current_char)
                 self.advance()
-                return token_cp
+                return self.current_token
 
             #7:: If blank
             elif self.current_char.isspace():
                 self.whitespace()
                 return self.current_token
+
+            #8:: If part of a WORD
+            elif len(self.current_token.value) > 0 and self.current_char.isalnum():
+                self.current_token.addChar(self.current_char)
+
+            #9:: Append char to WORD
+            else:
+                self.current_token.addChar(self.current_char)
+                return token_cp
 
             self.advance()
         return None
@@ -101,6 +109,7 @@ def main():
         lexer = Lexer(text)
         token = lexer.get_next_token()
         while token:
+            print(lexer.current_token.value)
             lexer.current_token = Token(None)
             token = lexer.get_next_token()
 
