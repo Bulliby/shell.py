@@ -48,29 +48,31 @@ class Lexer:
 
     def get_next_token(self):
         while self.current_char:
+            #STEP from : http://pubs.opengroup.org/onlinepubs/9699919799//utilities/V3_chap02.html#tag_18_03
 
+            #1:: If current char is new line
             if (self.current_char == '\n'):
                 self.advance()
                 return self.current_token
 
-            # If current char is part of an operator
+            #2:: If current char is part of an operator
             if len(self.current_token.value) > 0 and self.if_op_continuation():
                 print('continuation')
                 self.current_token.addChar(self.current_char)
 
-            # If current char is the end of an operator
+            #3:: If current char is the end of an operator
             elif len(self.current_token.value) > 0 and self.if_op_continuation() == 0:
                 print('break')
                 self.advance()
                 return self.current_token
             
-            # If current char is part of the first operator
+            #6:: If current char is part of the first operator
             elif self.pos == 0 and self.if_new_op():
                 print('new_op_first')
                 self.current_token = Token(None)
                 self.current_token.addChar(self.current_char)
 
-            # If current char is the start of new operator
+            #6:: If current char is the start of new operator
             elif self.if_new_op():
                 print('new_op')
                 token_cp = copy.deepcopy(self.current_token)
