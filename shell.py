@@ -55,45 +55,52 @@ class Lexer:
 
             #1:: If current char is new line
             if (self.current_char == '\n'):
+                print('NL')
                 self.advance()
                 return self.current_token
 
             #2:: If current char is part of an operator
-            elif len(self.current_token.value) > 0 and self.if_op_continuation():
+            elif self.current_token.type == OPERATOR and self.if_op_continuation():
                 print('continuation')
                 self.current_token.addChar(self.current_char)
 
             #3:: If current char is the end of an operator
-            elif len(self.current_token.value) > 0 and self.if_op_continuation() == 0:
+            elif self.current_token.type == OPERATOR and self.if_op_continuation() == 0:
+                print(self.current_token.value)
                 print('break')
                 self.advance()
                 return self.current_token
+
+            #6:: Current char is a new operator
+            if self.if_new_op():
+                print('new op')
+                if self.current_token.type != None:
+                    token_cp = copy.deepcopy(self.current_token)
+                    self.current_token = Token(None)
+                    self.current_token.type = OPERATOR
+                    self.current_token.addChar(self.current_char)
+                    self.advance()
+                    return token_cp
+                else:
+                    self.current_token.type = OPERATOR
+                    self.current_token.addChar(self.current_char)
             
-            #6:: If current char is part of the first operator
-            elif self.pos == 0 and self.if_new_op():
-                print('new_op_first')
-                self.current_token.addChar(self.current_char)
-
-            #6:: If current char is the start of new operator
-            elif self.if_new_op():
-                print('new_op')
-                self.current_token.addChar(self.current_char)
-                self.advance()
-                return self.current_token
-
             #7:: If blank
             elif self.current_char.isspace():
+                print('blank')
                 self.whitespace()
                 return self.current_token
-
-            #8:: If part of a WORD
-            elif len(self.current_token.value) > 0 and self.current_char.isalnum():
+            
+            #8:: Word continuation
+            elif self.current_token.type == WORD:
+                print('word continuation')
                 self.current_token.addChar(self.current_char)
 
-            #9:: Append char to WORD
+            #9:: New WORD
             else:
+                print('word')
+                self.current_token.type == WORD
                 self.current_token.addChar(self.current_char)
-                return token_cp
 
             self.advance()
         return None
@@ -108,10 +115,15 @@ def main():
             continue
         lexer = Lexer(text)
         token = lexer.get_next_token()
+        if (token != None):
+            print('first token')
+            print(token.value)
         while token:
-            print(lexer.current_token.value)
             lexer.current_token = Token(None)
             token = lexer.get_next_token()
+            if (token != None):
+                print('token')
+                print(token.value)
 
 
 if __name__ == '__main__':
