@@ -1,4 +1,5 @@
-WORD, NAME, NEWLINE, IO_NUMBER, AND_IF, OR_IF, DLESS,  DGREAT,  LESSAND,  GREATAND  = 'WORD', 'NAME', 'NEWLINE', 'IO_NUMBER', 'AND_IF', 'OR_IF', 'DLESS',  'DGREAT',  'LESSAND',  'GREATAND'
+WORD, NAME, NEWLINE, IO_NUMBER, AND_IF, OR_IF, DLESS,  DGREAT,  LESSAND,  GREATAND, OPERATOR = 'WORD', 'NAME', 'NEWLINE', 'IO_NUMBER', 'AND_IF', 'OR_IF', 'DLESS',  'DGREAT',  'LESSAND',  'GREATAND', 'OPERATOR'
+import copy
 
 class Token:
     def __init__(self, type):
@@ -13,7 +14,14 @@ class Lexer:
         self.pos = 0
         self.text = text
         self.current_char = self.text[self.pos]
-        self.currentToken = Token(None);
+        self.current_token = Token(None)
+        self.operators = [
+                '||',
+                '&&',
+                '<<',
+                '&>',
+                '<&',
+                ]
 
     def advance(self):
         if (self.pos < len(self.text) - 1):
@@ -25,18 +33,77 @@ class Lexer:
     def error(self):
         raise Exception ('Invalid Token')
 
+    def if_new_op(self):
+        for op in self.operators:
+            if op[0] == self.current_char:
+                return 1
+        return 0
+
+    def if_op_continuation(self):
+        for op in self.operators:
+            if op.startswith(self.current_token.value + self.current_char):
+                return 1
+        return 0
+
+    def whitespace(self):
+        while self.current_char and self.current_char.isspace():
+            self.advance()
+
     def get_next_token(self):
         while self.current_char:
+            #STEP from : http://pubs.opengroup.org/onlinepubs/9699919799//utilities/V3_chap02.html#tag_18_03
 
-            if self.current_char == '\n':
+            #1:: If current char is new line
+            if (self.current_char == '\n'):
+                print('NL')
                 self.advance()
-                return self.currentToken
+                return self.current_token
+
+            #2:: If current char is part of an operator
+            elif self.current_token.type == OPERATOR and self.if_op_continuation():
+                print('continuation')
+                self.current_token.addChar(self.current_char)
+
+            #3:: If current char is the end of an operator
+            elif self.current_token.type == OPERATOR and self.if_op_continuation() == 0:
+                print(self.current_token.value)
+                print('break')
+                self.advance()
+                return self.current_token
+
+            #6:: Current char is a new operator
+            if self.if_new_op():
+                print('new op')
+                if self.current_token.type != None:
+                    token_cp = copy.deepcopy(self.current_token)
+                    self.current_token = Token(None)
+                    self.current_token.type = OPERATOR
+                    self.current_token.addChar(self.current_char)
+                    self.advance()
+                    return token_cp
+                else:
+                    self.current_token.type = OPERATOR
+                    self.current_token.addChar(self.current_char)
             
-            else:
-                self.currentToken.addChar(self.current_char)
-                self.advance()
+            #7:: If blank
+            elif self.current_char.isspace():
+                print('blank')
+                self.whitespace()
+                return self.current_token
+            
+            #8:: Word continuation
+            elif self.current_token.type == WORD:
+                print('word continuation')
+                self.current_token.addChar(self.current_char)
 
-        return self.currentToken
+            #9:: New WORD
+            else:
+                print('word')
+                self.current_token.type == WORD
+                self.current_token.addChar(self.current_char)
+
+            self.advance()
+        return None
 
 def main():
     while True:
@@ -48,10 +115,15 @@ def main():
             continue
         lexer = Lexer(text)
         token = lexer.get_next_token()
-        print(token.value)
-        #interpreter = Interpreter(lexer)
-        #result = interpreter.expr()
-        #print(result)
+        if (token != None):
+            print('first token')
+            print(token.value)
+        while token:
+            lexer.current_token = Token(None)
+            token = lexer.get_next_token()
+            if (token != None):
+                print('token')
+                print(token.value)
 
 
 if __name__ == '__main__':
