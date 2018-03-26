@@ -55,25 +55,26 @@ class Lexer:
 
             #1:: If current char is new line
             if (self.current_char == '\n'):
-                print('NL')
+                #print('NL')
+                self.current_token.type = NEWLINE
                 self.advance()
                 return self.current_token
 
             #2:: If current char is part of an operator
             elif self.current_token.type == OPERATOR and self.if_op_continuation():
-                print('continuation')
+                #print('continuation')
                 self.current_token.addChar(self.current_char)
 
             #3:: If current char is the end of an operator
             elif self.current_token.type == OPERATOR and self.if_op_continuation() == 0:
-                print(self.current_token.value)
-                print('break')
+                #print(self.current_token.value)
+                #print('break')
                 self.advance()
                 return self.current_token
 
             #6:: Current char is a new operator
             if self.if_new_op():
-                print('new op')
+                #print('new op')
                 if self.current_token.type != None:
                     token_cp = copy.deepcopy(self.current_token)
                     self.current_token = Token(None)
@@ -87,23 +88,39 @@ class Lexer:
             
             #7:: If blank
             elif self.current_char.isspace():
-                print('blank')
+                #print('blank')
                 self.whitespace()
                 return self.current_token
             
             #8:: Word continuation
             elif self.current_token.type == WORD:
-                print('word continuation')
+                #print('word continuation')
                 self.current_token.addChar(self.current_char)
 
             #9:: New WORD
             else:
-                print('word')
+                #print('word')
                 self.current_token.type == WORD
                 self.current_token.addChar(self.current_char)
 
             self.advance()
         return None
+
+class Interpreter:
+    def __init__(self, lexer):
+        self.lexer = lexer
+        self.current_token = self.lexer.get_next_token()
+        self.result = 0
+
+    def eat(self, type):
+        if self.current_token.type == type:
+            self.current_token = self.lexer.get_next_token()
+        else:
+            self.lexer.error()
+
+    def programm(self):
+        self.result = self.linebreak()
+        
 
 def main():
     while True:
@@ -116,13 +133,13 @@ def main():
         lexer = Lexer(text)
         token = lexer.get_next_token()
         if (token != None):
-            print('first token')
+            #print('first token')
             print(token.value)
         while token:
             lexer.current_token = Token(None)
             token = lexer.get_next_token()
             if (token != None):
-                print('token')
+                #print('token')
                 print(token.value)
 
 
