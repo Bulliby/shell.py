@@ -1,110 +1,149 @@
-WORD, NAME, NEWLINE, IO_NUMBER, AND_IF, OR_IF, DLESS,  DGREAT,  LESSAND,  GREATAND, OPERATOR = 'WORD', 'NAME', 'NEWLINE', 'IO_NUMBER', 'AND_IF', 'OR_IF', 'DLESS',  'DGREAT',  'LESSAND',  'GREATAND', 'OPERATOR'
-import copy
+###############################################################################
+#                                                                             #
+#  LEXER                                                                      #
+#                                                                             #
+###############################################################################
+
+(NAME, NEWLINE, IO_NUMBER, AND_IF, OR_IF, DLESS,  DGREAT,  LESSAND,  
+        GREATAND, OPERATOR) = ('NAME', 'NEWLINE', 'IO_NUMBER', 'AND_IF', 
+'OR_IF', 'DLESS',  'DGREAT',  'LESSAND',  'GREATAND', 'OPERATOR')
+
 
 class Token:
-    def __init__(self, type):
+    def __init__(self, type, value):
         self.type = type
-        self.value = ''
+        self.value = value
 
-    def addChar(self, value):
-        self.value += value;
+    def __str__(self):
+        """String representation of the class instance.
+
+        Examples:
+            Token(INTEGER, 3)
+            Token(PLUS, '+')
+            Token(MUL, '*')
+        """
+        return 'Token({type}, {value})'.format(
+            type=self.type,
+            value=repr(self.value)
+        )
+
+    def __repr__(self): #Define what is this
+        return self.__str__()
 
 class Lexer:
     def __init__(self, text):
-        self.pos = 0
+        # client string input, e.g. "4 + 2 * 3 - 6 / 2"
         self.text = text
+        # self.pos is an index into self.text
+        self.pos = 0
         self.current_char = self.text[self.pos]
-        self.current_token = Token(None)
-        self.operators = [
-                '||',
-                '&&',
-                '<<',
-                '&>',
-                '<&',
-                ]
 
-    def advance(self):
-        if (self.pos < len(self.text) - 1):
-            self.pos += 1
-            self.current_char = self.text[self.pos]
-        else:
-            self.current_char = None
+        self.operators = {
+            "OR_IF"     : "||",
+            "AND_IF"    : "&&",
+            "DLESS"     : "<<",
+            "GREATAND"  : "&>",
+            "LESSAND"   : "<&",
+        } 
 
     def error(self):
+        print("%s" % self.current_char)
+        print("%s" % self.peek())
         raise Exception ('Invalid Token')
 
-    def if_new_op(self):
-        for op in self.operators:
-            if op[0] == self.current_char:
-                return 1
-        return 0
+    def advance(self):
+        """Advance the `pos` pointer and set the `current_char` variable."""
+        self.pos += 1
+        if self.pos > len(self.text) - 1:
+            self.current_char = None  # Indicates end of input
+        else:
+            self.current_char = self.text[self.pos]
 
-    def if_op_continuation(self):
-        for op in self.operators:
-            if op.startswith(self.current_token.value + self.current_char):
-                return 1
-        return 0
+    def peek(self):
+        peek_pos = self.pos + 1
+        if peek_pos > len(self.text) - 1:
+            return None
+        else:
+            return self.text[peek_pos]
 
-    def whitespace(self):
-        while self.current_char and self.current_char.isspace():
+    def skip_whitespace(self):
+        while self.current_char is not None and self.current_char.isspace():
             self.advance()
+
+    def _id(self):
+        """Handle identifiers and reserved keywords"""
+        result = ''
+        while self.current_char is not None and self.current_char.isalnum():
+            result += self.current_char
+            self.advance()
+
+        return token(NAME, result.upper())
+
+    def d_operator(self):
+        for k, op in self.operators.items():
+            if op[0] == self.current_char:
+                if op[1] == self.peek():
+                    return { k : op}
+        return None
+
 
     def get_next_token(self):
         while self.current_char:
             #STEP from : http://pubs.opengroup.org/onlinepubs/9699919799//utilities/V3_chap02.html#tag_18_03
 
             #1:: If current char is new line
-            if (self.current_char == '\n'):
-                #print('NL')
-                self.current_token.type = NEWLINE
+            if self.current_char == '\n':
                 self.advance()
-                return self.current_token
+                return Token(NEWLINE, "\n") 
 
-            #2:: If current char is part of an operator
-            elif self.current_token.type == OPERATOR and self.if_op_continuation():
-                #print('continuation')
-                self.current_token.addChar(self.current_char)
-
-            #3:: If current char is the end of an operator
-            elif self.current_token.type == OPERATOR and self.if_op_continuation() == 0:
-                #print(self.current_token.value)
-                #print('break')
+            #2:: If current char is part of a double operator
+            elif self.d_operator():
+                operator = self.d_operator()
                 self.advance()
-                return self.current_token
+                self.advance()
+                return Token(operator.keys(), operator)
 
-            #6:: Current char is a new operator
-            if self.if_new_op():
-                #print('new op')
-                if self.current_token.type != None:
-                    token_cp = copy.deepcopy(self.current_token)
-                    self.current_token = Token(None)
-                    self.current_token.type = OPERATOR
-                    self.current_token.addChar(self.current_char)
-                    self.advance()
-                    return token_cp
-                else:
-                    self.current_token.type = OPERATOR
-                    self.current_token.addChar(self.current_char)
+        #    #3:: If current char is the end of an operator
+        #    elif self.current_token.type == OPERATOR and self.if_op_continuation() == 0:
+        #        #print(self.current_token.value)
+        #        #print('break')
+        #        self.advance()
+        #        return self.current_token
+
+        #    #6:: Current char is a new operator
+        #    if self.if_new_op():
+        #        #print('new op')
+        #        if self.current_token.type != None:
+        #            token_cp = copy.deepcopy(self.current_token)
+        #            self.current_token = Token(None)
+        #            self.current_token.type = OPERATOR
+        #            self.current_token.addChar(self.current_char)
+        #            self.advance()
+        #            return token_cp
+        #        else:
+        #            self.current_token.type = OPERATOR
+        #            self.current_token.addChar(self.current_char)
             
             #7:: If blank
-            elif self.current_char.isspace():
-                #print('blank')
-                self.whitespace()
-                return self.current_token
+            if self.current_char.isspace():
+                self.skip_whitespace()
+                continue
             
-            #8:: Word continuation
-            elif self.current_token.type == WORD:
-                #print('word continuation')
-                self.current_token.addChar(self.current_char)
+        #    #8:: Word continuation
+        #    elif self.current_token.type == WORD:
+        #        #print('word continuation')
+        #        self.current_token.addChar(self.current_char)
 
-            #9:: New WORD
-            else:
-                #print('word')
-                self.current_token.type == WORD
-                self.current_token.addChar(self.current_char)
+        #    #9:: New WORD
+        #    else:
+        #        #print('word')
+        #        self.current_token.type == WORD
+        #        self.current_token.addChar(self.current_char)
 
-            self.advance()
-        return None
+        #    self.advance()
+            self.error()
+
+        return Token(EOF, None)
 
 class Interpreter:
     def __init__(self, lexer):
