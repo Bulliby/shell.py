@@ -1,8 +1,11 @@
 from shell import Token, Lexer
 text = """                   
-<& &> << || &&
+<& &> << || && < & |
 """
 lexer = Lexer(text)
+print("%s" %lexer.get_next_token())
+print("%s" %lexer.get_next_token())
+print("%s" %lexer.get_next_token())
 print("%s" %lexer.get_next_token())
 print("%s" %lexer.get_next_token())
 print("%s" %lexer.get_next_token())
