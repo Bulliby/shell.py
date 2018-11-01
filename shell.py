@@ -1,3 +1,5 @@
+"""Shell Lexer/Parse in python"""
+
 ###############################################################################
 #                                                                             #
 #  LEXER                                                                      #
@@ -130,31 +132,66 @@ class Lexer:
 
         return Token(EOF, None)
 
-class Interpreter:
+
+###############################################################################
+#                                                                             #
+#  PARSER                                                                     #
+#                                                                             #
+###############################################################################
+
+
+class AST(object):
+    pass
+
+class BinOp(AST):
+    def __init__(self, left, op, right):
+        self.left = left
+        self.token = self.op = op
+        self.right = right
+
+class Var(AST):
+    """The Var node is constructed out of ID token."""
+    def __init__(self, token):
+        self.token = token
+        self.value = token.value
+
+class Parser(object):
     def __init__(self, lexer):
         self.lexer = lexer
+        # set current token to the first token taken from the input
         self.current_token = self.lexer.get_next_token()
-        self.result = 0
 
-    def eat(self, type):
-        if self.current_token.type == type:
+    def error(self):
+        raise Exception('Invalid syntax')
+
+    def eat(self, token_type):
+        # compare the current token type with the passed token
+        # type and if they match then "eat" the current token
+        # and assign the next token to the self.current_token,
+        # otherwise raise an exception.
+        if self.current_token.type == token_type:
             self.current_token = self.lexer.get_next_token()
         else:
-            self.lexer.error()
+            self.error()
 
-    def programm(self):
-        self.result = self.linebreak()
-        
+    def program(self):
+        """program : linebreak complete_commands linebreak
+                     | linebreak
+                     ;      
+        """
+        node = self.linebreak()
+        self.eat(DOT)
+        return node
 
 def main():
-    while True:
+    while true:
         try:
             text = input('lexer> ')
-        except EOFError:
+        except eoferror:
             break
         if not text:
             continue
-        lexer = Lexer(text)
+        lexer = lexer(text)
         token = lexer.get_next_token()
         while token:
             lexer.current_token = Token(None)

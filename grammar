@@ -1,0 +1,66 @@
+program          : linebreak complete_commands linebreak
+                 | linebreak
+                 ;
+linebreak        : newline_list
+                 | /* empty */
+                 ;
+newline_list     :              NEWLINE
+                 | newline_list NEWLINE
+                 ;
+complete_commands: complete_commands newline_list and_or
+                 |                                and_or
+                 ;
+and_or           :                         pipe_sequence
+                 | and_or AND_IF linebreak pipe_sequence
+                 | and_or OR_IF  linebreak pipe_sequence
+                 ;
+pipe_sequence    :                             simple_command
+                 | pipe_sequence '|' linebreak simple_command
+                 ;
+pipe_sequence    :                             command
+                 | pipe_sequence '|' linebreak command
+                 ;
+command          : simple_command
+                 | redirect_list
+                 ;
+simple_command   : cmd_prefix cmd_word cmd_suffix
+                 | cmd_prefix cmd_word
+                 | cmd_prefix
+                 | cmd_name cmd_suffix
+                 | cmd_name
+                 ;
+cmd_word         : WORD                   /* Apply rule 7b */
+                 ;
+cmd_name         : WORD                   /* Apply rule 7a */
+                 ;
+cmd_prefix       :            io_redirect
+                 | cmd_prefix io_redirect
+                 |            ASSIGNMENT_WORD
+                 | cmd_prefix ASSIGNMENT_WORD
+                 ;
+cmd_suffix       :            io_redirect
+                 | cmd_suffix io_redirect
+                 |            WORD
+                 | cmd_suffix WORD
+                 ;
+redirect_list    :               io_redirect
+                 | redirect_list io_redirect
+                 ;
+io_redirect      :           io_file
+                 | IO_NUMBER io_file
+                 |           io_here
+                 | IO_NUMBER io_here
+                 ;
+io_file          : '<'       filename
+                 | LESSAND   filename
+                 | '>'       filename
+                 | GREATAND  filename
+                 | DGREAT    filename
+                 | LESSGREAT filename
+                 | CLOBBER   filename
+                 ;
+filename         : WORD                      /* Apply rule 2 */
+                 ;
+io_here          : DLESS     here_end
+                 ;
+here_end         : WORD                      /* Apply rule 3 */
