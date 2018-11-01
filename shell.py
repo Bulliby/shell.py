@@ -98,7 +98,6 @@ class Lexer:
         return None
 
 
-
     def get_next_token(self):
         while self.current_char:
             #STEP from : http://pubs.opengroup.org/onlinepubs/9699919799//utilities/V3_chap02.html#tag_18_03
@@ -120,44 +119,13 @@ class Lexer:
                 self.advance()
                 return operator
 
-        #    #3:: If current char is the end of an operator
-        #    elif self.current_token.type == OPERATOR and self.if_op_continuation() == 0:
-        #        #print(self.current_token.value)
-        #        #print('break')
-        #        self.advance()
-        #        return self.current_token
-
-        #    #6:: Current char is a new operator
-        #    if self.if_new_op():
-        #        #print('new op')
-        #        if self.current_token.type != None:
-        #            token_cp = copy.deepcopy(self.current_token)
-        #            self.current_token = Token(None)
-        #            self.current_token.type = OPERATOR
-        #            self.current_token.addChar(self.current_char)
-        #            self.advance()
-        #            return token_cp
-        #        else:
-        #            self.current_token.type = OPERATOR
-        #            self.current_token.addChar(self.current_char)
-            
-            #7:: If blank
             if self.current_char.isspace():
                 self.skip_whitespace()
                 continue
-            
-        #    #8:: Word continuation
-        #    elif self.current_token.type == WORD:
-        #        #print('word continuation')
-        #        self.current_token.addChar(self.current_char)
 
-        #    #9:: New WORD
-        #    else:
-        #        #print('word')
-        #        self.current_token.type == WORD
-        #        self.current_token.addChar(self.current_char)
+            if self.current_char.isalpha() or self.current_char == '_':
+                return self._id()
 
-        #    self.advance()
             self.error()
 
         return Token(EOF, None)
