@@ -189,6 +189,8 @@ class Parser(object):
         """
         print("program")
         self.linebreak()
+        self.complete_commands()
+        self,linebreak()
 
     def linebreak(self):
         """ linebreak   : newline_list
@@ -208,6 +210,20 @@ class Parser(object):
             print("newline_line")
             self.eat(NEWLINE)# temp on a besoin de retourner un element
 
+    def complete_commands(self):
+        """ complete_commands: complete_commands newline_list and_or
+                             | and_or
+                             ;
+        """
+        print("complete_commands")
+
+    def and_or(self):
+        """ and_or  : pipe_sequence
+                    | and_or AND_IF linebreak pipe_sequence
+                    | and_or OR_IF  linebreak pipe_sequence
+                    ;
+        """ 
+        print("and_or")
     def empty(self):
         """An empty production"""
         return NoOp()
