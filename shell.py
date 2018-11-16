@@ -7,8 +7,8 @@
 ###############################################################################
 
 (NAME, NEWLINE, IO_NUMBER, AND_IF, OR_IF, DLESS,  DGREAT,  LESSAND,  
-        GREATAND, OPERATOR, PIPE) = ('NAME', 'NEWLINE', 'IO_NUMBER', 'AND_IF', 
-'OR_IF', 'DLESS',  'DGREAT',  'LESSAND',  'GREATAND', 'OPERATOR', 'PIPE')
+        GREATAND, OPERATOR, PIPE, EOF) = ('NAME', 'NEWLINE', 'IO_NUMBER', 'AND_IF', 
+'OR_IF', 'DLESS',  'DGREAT',  'LESSAND',  'GREATAND', 'OPERATOR', 'PIPE', 'EOF')
 
 
 class Token:
@@ -107,7 +107,7 @@ class Lexer:
             #1:: If current char is new line
             if self.current_char == '\n':
                 self.advance()
-                return Token(NEWLINE, "\n") 
+                return Token(NEWLINE, '\n') 
 
             #2:: If current char is part of a double operator
             elif self.d_operator():
@@ -155,6 +155,14 @@ class Var(AST):
         self.token = token
         self.value = token.value
 
+class UnaryOp(AST):
+    def __init__(self, op, expr):
+        self.token = self.op = op
+        self.expr = expr
+
+class NoOp(AST):
+    pass
+
 class Parser(object):
     def __init__(self, lexer):
         self.lexer = lexer
@@ -175,13 +183,34 @@ class Parser(object):
             self.error()
 
     def program(self):
-        """program : linebreak complete_commands linebreak
-                     | linebreak
-                     ;      
+        """program  : linebreak complete_commands linebreak
+                    | linebreak
+                    ;      
         """
-        node = self.linebreak()
-        self.eat(DOT)
-        return node
+        print("program")
+        self.linebreak()
+
+    def linebreak(self):
+        """ linebreak   : newline_list
+                        | /* empty */
+                        ;
+        """
+        print("newline_list")
+        self.newline_list()
+
+
+    def newline_list(self):
+        """ newline_list    : NEWLINE
+                            | newline_list NEWLINE
+                            ;
+        """
+        while self.current_token.type == NEWLINE:
+            print("newline_line")
+            self.eat(NEWLINE)# temp on a besoin de retourner un element
+
+    def empty(self):
+        """An empty production"""
+        return NoOp()
 
 def main():
     while true:
