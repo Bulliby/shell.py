@@ -163,6 +163,9 @@ class UnaryOp(AST):
 class NoOp(AST):
     pass
 
+class NewLine(AST):
+    pass
+
 class Parser(object):
     def __init__(self, lexer):
         self.lexer = lexer
@@ -188,9 +191,14 @@ class Parser(object):
                     ;      
         """
         print("program")
-        self.linebreak()
-        self.complete_commands()
-        self,linebreak()
+        token = self.current_token
+        if token.type == NEWLINE:
+            self.linebreak()
+        else:
+            print("lu")
+            self.linebreak()
+            self.complete_commands()
+            self.linebreak()
 
     def linebreak(self):
         """ linebreak   : newline_list
@@ -209,6 +217,7 @@ class Parser(object):
         while self.current_token.type == NEWLINE:
             print("newline_line")
             self.eat(NEWLINE)# temp on a besoin de retourner un element
+            
 
     def complete_commands(self):
         """ complete_commands: complete_commands newline_list and_or
@@ -216,7 +225,10 @@ class Parser(object):
                              ;
         """
         print("complete_commands")
-
+        if self.current_token.type == PIPE:
+            self.eat(PIPE)
+        while self.current_token.type == PIPE:
+            sel
     def and_or(self):
         """ and_or  : pipe_sequence
                     | and_or AND_IF linebreak pipe_sequence
@@ -224,8 +236,22 @@ class Parser(object):
                     ;
         """ 
         print("and_or")
+
+    def pipe_sequence(self):
+        """ pipe_sequence : command
+                          | pipe_sequence '|' linebreak command
+                          ;
+        """
+
+    def simple_command(self):
+        """ simple_command   : cmd_prefix cmd_word cmd_suffix
+                             | cmd_prefix cmd_word
+                             | cmd_prefix
+                             | cmd_name cmd_suffix
+                             | cmd_name
+        """ 
+
     def empty(self):
-        """An empty production"""
         return NoOp()
 
 def main():
