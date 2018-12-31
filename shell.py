@@ -164,6 +164,9 @@ class NoOp(AST):
     pass
 
 class NewLine(AST):
+    def __init__(self, token):
+        self.token = token
+        self.value = token.value
     pass
 
 class Parser(object):
@@ -190,23 +193,17 @@ class Parser(object):
                     | linebreak
                     ;      
         """
-        print("program")
-        token = self.current_token
-        if token.type == NEWLINE:
-            self.linebreak()
-        else:
-            print("lu")
-            self.linebreak()
-            self.complete_commands()
-            self.linebreak()
+        self.linebreak() 
+        node = self.complete_commands()
+        self.linebreak()
+        return node
 
     def linebreak(self):
         """ linebreak   : newline_list
                         | /* empty */
                         ;
         """
-        print("newline_list")
-        self.newline_list()
+        return self.newline_list()
 
 
     def newline_list(self):
@@ -214,9 +211,13 @@ class Parser(object):
                             | newline_list NEWLINE
                             ;
         """
+        token = self.current_token
+        node = None
         while self.current_token.type == NEWLINE:
-            print("newline_line")
-            self.eat(NEWLINE)# temp on a besoin de retourner un element
+            node = NewLine(self.current_token)
+            self.eat(NEWLINE)
+
+        return node
             
 
     def complete_commands(self):
@@ -225,10 +226,13 @@ class Parser(object):
                              ;
         """
         print("complete_commands")
+        """
         if self.current_token.type == PIPE:
             self.eat(PIPE)
         while self.current_token.type == PIPE:
             sel
+        """
+
     def and_or(self):
         """ and_or  : pipe_sequence
                     | and_or AND_IF linebreak pipe_sequence
