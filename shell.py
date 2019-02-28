@@ -189,74 +189,51 @@ class Parser(object):
             self.error()
 
     def program(self):
-        """program  : linebreak complete_commands linebreak
-                    | linebreak
+        """program  : complete_commands linebreak*
+                    | linebreak*
                     ;      
         """
-        self.linebreak() 
-        node = self.complete_commands()
-        self.linebreak()
-        return node
-
-    def linebreak(self):
-        """ linebreak   : newline_list
-                        | /* empty */
-                        ;
-        """
-        return self.newline_list()
-
-
-    def newline_list(self):
-        """ newline_list    : NEWLINE
-                            | newline_list NEWLINE
-                            ;
-        """
-        token = self.current_token
-        node = None
         while self.current_token.type == NEWLINE:
-            node = NewLine(self.current_token)
+            self.eat(NEWLINE)
+        if self.current_token.type == COMMAND:
+            node = self.current_token
+        while self.current_token.type == NEWLINE:
             self.eat(NEWLINE)
 
         return node
-            
+
+    def linebreak(self):
+        """ linebreak           : NEWLINE
+        """
+        pass
+
 
     def complete_commands(self):
-        """ complete_commands: complete_commands newline_list and_or
-                             | and_or
-                             ;
+        """ complete_commands   :  pipe_sequence  
+                                |  complete_commands AND_IF pipe_sequence
+                                |  complete_commands OR_IF pipe_sequence
+                                ;
         """
-        print("complete_commands")
+
+    def pipe_sequence(self)
+        """pipe_sequence        :  command
+                                |  command PIPE comand
+                                ;
         """
-        if self.current_token.type == PIPE:
+        nodes = []
+        if (self.current_token.type == COMMMAND)
+            nodes.append(self.current_token)
+            self.eat(COMMAND)
+        if (self.current_token.type == PIPE)
+            nodes.append(self.current_token)
             self.eat(PIPE)
-        while self.current_token.type == PIPE:
-            sel
-        """
+        return nodes 
 
-    def and_or(self):
-        """ and_or  : pipe_sequence
-                    | and_or AND_IF linebreak pipe_sequence
-                    | and_or OR_IF  linebreak pipe_sequence
-                    ;
-        """ 
-        print("and_or")
 
-    def pipe_sequence(self):
-        """ pipe_sequence : command
-                          | pipe_sequence '|' linebreak command
-                          ;
-        """
+    def command(self):
+        node = Var(self.current_token)
+        return node
 
-    def simple_command(self):
-        """ simple_command   : cmd_prefix cmd_word cmd_suffix
-                             | cmd_prefix cmd_word
-                             | cmd_prefix
-                             | cmd_name cmd_suffix
-                             | cmd_name
-        """ 
-
-    def empty(self):
-        return NoOp()
 
 def main():
     while true:

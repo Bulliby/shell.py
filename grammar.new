@@ -10,3 +10,5 @@ complete_commands   :  pipe_sequence
 pipe_sequence       :  command
                     |  command PIPE comand
                     ;
+command             :  COMMAND
+                    ; 
