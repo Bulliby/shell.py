@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 19:55:28 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/03/07 13:03:48 by bulliby             \________/\/\_/       #
+#    Updated: 2019/03/07 16:00:54 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,8 +24,8 @@ class Lexer:
         self.pos = 0
         self.len = len(self.userInput)
         self.operators = {
-            "OR_IF"     : "||",
-            "AND_IF"    : "&&",
+            "OR"     : "||",
+            "AND"    : "&&",
             "DLESS"     : "<<",
             "GREATAND"  : "&>",
             "LESSAND"   : "<&",
@@ -33,7 +33,7 @@ class Lexer:
         #Unary operators
         self.u_operator = {
             "PIPE"      : "|",
-            "AND"       : "&",
+            "AND"       : "&",#TODO put an other name
             "LESS"      : "<",
             "GREAT"     : ">",
         } 
@@ -48,6 +48,9 @@ class Lexer:
     def advance(self):
         self.pos += 1
 
+    def doubleAdvance(self):
+        self.pos += 2
+        
     def error(self):
         raise Exception ('Invalid Token')
 
@@ -90,8 +93,7 @@ class Lexer:
                 self.handleWhiteSpace()
             elif self.handleDoubleOperator():
                 tokens.append(self.handleDoubleOperator())
-                self.advance()
-                self.advance()
+                self.doubleAdvance()
             elif self.handleOperator():
                 tokens.append(self.handleOperator())
                 self.advance()

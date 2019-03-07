@@ -1,2 +1,3 @@
-expr    : cmd ((PIPE | AND | OR cmd)* | (REDIR file)*)*
-cmd     : CMD
+expr        : commands (AND | OR commands)*
+commands    : cmd ((PIPE cmd)* | (REDIR file)*)*
+cmd         : CMD

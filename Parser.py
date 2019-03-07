@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 20:02:11 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/03/07 13:11:01 by bulliby             \________/\/\_/       #
+#    Updated: 2019/03/07 16:09:35 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,14 +45,29 @@ class Parser(object):
 
     def expr(self):
         """
-        expr:   CMD ((PIPE | AND | OR CMD)* | (REDIR FILE)*)*
+        expr        : commands (AND | OR commands)*
         """
-        cmd1 = Cmd(self.getToken().value)
+        node = self.commands()
+        while self.getToken().token in ['AND', 'OR']:
+            if self.getToken().token == 'AND':
+                token = self.getToken().token
+                self.eat(self.getToken(), 'AND')
+            elif self.getToken().token == 'OR':
+                token = self.getToken().token
+                self.eat(self.getToken(), 'OR')
+            node = BinOp(node, token, self.commands())
+        return node
+
+    def commands(self):
+        """
+        commands    : CMD ((PIPE CMD)* | (REDIR FILE)*)*
+        """
+        cmd = Cmd(self.getToken().value)
         self.eat(self.getToken(), 'CMD')
         while self.getToken().token in ['PIPE']:
-            operator = 'PIPE'
+            operator = self.getToken().token
             self.eat(self.getToken(), 'PIPE')
             cmd2 = Cmd(self.getToken().value)
             self.eat(self.getToken(), 'CMD')
-            cmd1 = BinOp(cmd1, operator, cmd2)
-        return cmd1
+            cmd = BinOp(cmd, operator, cmd2)
+        return cmd
