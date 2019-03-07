@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 19:55:28 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/03/07 16:00:54 by bulliby             \________/\/\_/       #
+#    Updated: 2019/03/07 16:59:23 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,8 +27,9 @@ class Lexer:
             "OR"     : "||",
             "AND"    : "&&",
             "DLESS"     : "<<",
+            "DGREAT"   :  ">>",
             "GREATAND"  : "&>",
-            "LESSAND"   : "<&",
+            "LESSAND"   : "<&"
         } 
         #Unary operators
         self.u_operator = {
@@ -100,7 +101,7 @@ class Lexer:
             elif self.currentChar().isalpha():
                 tokens.append(self.handleCommand())
             else:
-                raise Exception("Invalid Character")
+                raise Exception("Invalid Character : " + self.currentChar())
 
         tokens.append(Token(None, 0))
         return tokens

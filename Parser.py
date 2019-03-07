@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 20:02:11 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/03/07 16:09:35 by bulliby             \________/\/\_/       #
+#    Updated: 2019/03/07 17:58:04 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -70,4 +70,17 @@ class Parser(object):
             cmd2 = Cmd(self.getToken().value)
             self.eat(self.getToken(), 'CMD')
             cmd = BinOp(cmd, operator, cmd2)
+        while self.getToken().token in ['GREAT', 'GREATAND', 'DGREAT']:
+            operator = self.getToken().token
+            if operator == 'GREAT':
+                self.eat(self.getToken(), 'GREAT')
+                file = Cmd(self.getToken().value)
+            if operator == 'GREATAND':
+                self.eat(self.getToken(), 'GREATAND')
+                file = Cmd(self.getToken().value)
+            if operator == 'DGREAT':
+                self.eat(self.getToken(), 'DGREAT')
+                file = Cmd(self.getToken().value)
+            self.eat(self.getToken(), 'CMD')
+            cmd = BinOp(cmd, operator, file)
         return cmd
