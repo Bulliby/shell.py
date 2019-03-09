@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 20:02:11 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/03/07 17:58:04 by bulliby             \________/\/\_/       #
+#    Updated: 2019/03/08 15:57:45 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,10 +15,16 @@ class BinOp():
         self.left = left
         self.token = self.op = op
         self.right = right
+
+    def __str__(self):
+        return "This is a BinOp with left value {0} and right value {1}".format(self.left, self.right)
         
 class Cmd():
     def __init__(self, value):
         self.value = value 
+
+    def __str__(self):
+        return "This a LEAF with value : {0}".format(self.value)
 
 class Parser(object):
     def __init__(self, tokens):

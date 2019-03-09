@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 19:55:28 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/03/07 16:59:23 by bulliby             \________/\/\_/       #
+#    Updated: 2019/03/08 11:32:11 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -72,7 +72,7 @@ class Lexer:
             result += self.currentChar()
             self.advance()
 
-        return Token('CMD', result.upper())
+        return Token('CMD', result)
 
     def handleDoubleOperator(self):
         for k, op in self.operators.items():
