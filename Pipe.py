@@ -3,29 +3,41 @@ import os
 r, w = os.pipe()
 
 class Pipe():
-    def __init__(self, cmd, first):
+    def __init__(self, cmd, first = False, last = False):
         self.cmd = cmd
         self.first = first
-        self.exec_command()
+        self.r, self.w = os.pipe()
+        self.r2, self.w2 = os.pipe()
+        if first:
+            self.first_command()
+        elif last:
+            self.last_command()
+        else:
+            self.middle_commands()
 
-    def exec_command(self):
-        global r
-        global w
+
+    def first_command(self):
         pid = os.fork()
         if pid == 0:
-            #First type of child process
-            if self.first == False:
-                print(self.cmd)
-                os.close(r)
-                os.dup2(w, 1)
-                os.execvp(self.cmd, [self.cmd])
-            #Second type of child process
-            else:
-                print(self.cmd)
-                os.close(w)
-                os.dup2(r, 0)
-                os.execvp(self.cmd, [self.cmd])
+            os.close(self.r)
+            os.dup2(self.w, 1)
+            os.execvp(self.cmd, [self.cmd])
 
-        else: #father process
-            if self.first == False:
-                os.waitpid(pid, 0)
+    def middle_commands(self):
+        self.r2, self.w2 = os.pipe()
+        pid = os.fork()
+        if pid == 0:
+            os.close(self.w)
+            os.dup2(self.r, 0)
+            os.close(self.r2)
+            os.dup2(self.w2, 1)
+            os.execvp(self.cmd, [self.cmd])
+
+
+    def last_command(self):
+        pid = os.fork()
+        if pid == 0:
+            os.close(self.w2)
+            os.dup2(self.r2, 0)
+            os.execvp(self.cmd, [self.cmd])
+
