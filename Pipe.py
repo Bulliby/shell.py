@@ -1,43 +1,25 @@
 import os
 
-r, w = os.pipe()
-
 class Pipe():
-    def __init__(self, cmd, first = False, last = False):
+    def __init__(self, cmd, pipe):
         self.cmd = cmd
-        self.first = first
-        self.r, self.w = os.pipe()
-        self.r2, self.w2 = os.pipe()
-        if first:
-            self.first_command()
-        elif last:
-            self.last_command()
+        self.pipe = pipe
+        if self.pipe == None:
+            self.r, self.w = os.pipe()
         else:
-            self.middle_commands()
+            self.r = pipe.r
+            self.w = pipe.w
 
-
-    def first_command(self):
-        pid = os.fork()
-        if pid == 0:
-            os.close(self.r)
-            os.dup2(self.w, 1)
-            os.execvp(self.cmd, [self.cmd])
-
-    def middle_commands(self):
-        self.r2, self.w2 = os.pipe()
+    def exec_pipe(self):
+        r2, w2 = os.pipe()
         pid = os.fork()
         if pid == 0:
             os.close(self.w)
             os.dup2(self.r, 0)
-            os.close(self.r2)
-            os.dup2(self.w2, 1)
+            os.close(r2)
+            os.dup2(w2, 1)
             os.execvp(self.cmd, [self.cmd])
 
-
-    def last_command(self):
-        pid = os.fork()
-        if pid == 0:
-            os.close(self.w2)
-            os.dup2(self.r2, 0)
-            os.execvp(self.cmd, [self.cmd])
-
+        self.r = r2
+        self.w = w2
+        return self
