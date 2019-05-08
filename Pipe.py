@@ -18,3 +18,8 @@ class Pipe():
 
             self.r = r2
             self.w = w2
+
+    def exec_last_pipe(self, node):
+        os.close(self.w)
+        os.dup2(self.r, 0)
+        os.execvp(node.right.value, [node.right.value])
