@@ -1,5 +1,6 @@
 from Lexer import Lexer
 from Parser import Parser
+from Parser import Cmd
 from Interpreter import Interpreter
 import os
 
@@ -8,5 +9,9 @@ lexer = Lexer(input)
 tokens = lexer.splitInput()
 parser = Parser(tokens)
 node = parser.expr()
-interpreter = Interpreter(node)
-interpreter.visit_BinOp(node)
+
+if (type(node) is Cmd):
+    os.execvp(node.value, [node.value])
+else:
+    interpreter = Interpreter(node)
+    interpreter.visit_BinOp(node)

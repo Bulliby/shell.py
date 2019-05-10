@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 19:56:05 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/05/08 20:08:14 by bulliby             \________/\/\_/       #
+#    Updated: 2019/05/10 22:43:53 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,5 +28,3 @@ class Interpreter():
             if self.root is node:
                 self.pipe.exec_last_pipe(node) 
             self.pipe.exec_pipe(self.visit_BinOp(node.right))
-            if self.root is node:
-                self.pipe.exec_last_pipe(node) 
