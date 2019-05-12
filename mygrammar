@@ -1,4 +1,4 @@
 expr        : commands (AND | OR commands)*
-commands    : cmd ((PIPE cmd)* | (GREAT | GREATAND | DGREAT file)*)*
+commands    : cmd (PIPE cmd)* | (GREAT file | GREATAND file | DGREAT file)*
 file        : FILE
 cmd         : CMD

@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 20:02:11 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/03/08 15:57:45 by bulliby             \________/\/\_/       #
+#    Updated: 2019/05/11 22:32:08 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -66,7 +66,7 @@ class Parser(object):
 
     def commands(self):
         """
-        commands    : CMD ((PIPE CMD)* | (REDIR FILE)*)*
+        commands    : cmd (PIPE cmd)* | (GREAT file | GREATAND file | DGREAT file)*
         """
         cmd = Cmd(self.getToken().value)
         self.eat(self.getToken(), 'CMD')
