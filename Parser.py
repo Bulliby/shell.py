@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 20:02:11 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/05/11 22:32:08 by bulliby             \________/\/\_/       #
+#    Updated: 2019/05/18 13:30:39 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,11 +20,23 @@ class BinOp():
         return "This is a BinOp with left value {0} and right value {1}".format(self.left, self.right)
         
 class Cmd():
-    def __init__(self, value):
-        self.value = value 
+    def __init__(self, cmd):
+        self.cmd = cmd 
+        self.suffix = []
+        self.suffix.append(cmd) #The first suffix is the name of the command
 
     def __str__(self):
-        return "This a LEAF with value : {0}".format(self.value)
+        return "This a LEAF with value : {0} and suffix {1}".format(self.cmd, self.suffix)
+
+    def push_suffix(self, suffix):
+        self.suffix.append(suffix)
+
+class File():
+    def __init__(self, file):
+        self.file = file 
+
+    def __str__(self):
+        return "This a LEAF with file : {0}".format(self.file)
 
 class Parser(object):
     def __init__(self, tokens):
@@ -64,18 +76,20 @@ class Parser(object):
             node = BinOp(node, token, self.commands())
         return node
 
+
+
     def commands(self):
         """
-        commands    : cmd (PIPE cmd)* | (GREAT file | GREATAND file | DGREAT file)*
+        commands    : comp_cmd ((PIPE comp_cmd)* | (GREAT file | GREATAND file | DGREAT file)*)
         """
-        cmd = Cmd(self.getToken().value)
-        self.eat(self.getToken(), 'CMD')
+        commands = self.comp_cmd()
+
         while self.getToken().token in ['PIPE']:
             operator = self.getToken().token
             self.eat(self.getToken(), 'PIPE')
-            cmd2 = Cmd(self.getToken().value)
-            self.eat(self.getToken(), 'CMD')
-            cmd = BinOp(cmd, operator, cmd2)
+            comp_cmd_right = self.comp_cmd()
+            commands = BinOp(commands, operator, comp_cmd_right)
+
         while self.getToken().token in ['GREAT', 'GREATAND', 'DGREAT']:
             operator = self.getToken().token
             if operator == 'GREAT':
@@ -89,4 +103,19 @@ class Parser(object):
                 file = Cmd(self.getToken().value)
             self.eat(self.getToken(), 'CMD')
             cmd = BinOp(cmd, operator, file)
-        return cmd
+        return commands
+
+
+
+    def comp_cmd(self):
+        """
+        comp_cmd    : cmd (cmd_suffix)*
+        """
+        comp_cmd = Cmd(self.getToken().value)
+        self.eat(self.getToken(), 'WORD')
+
+        while self.getToken().token == 'WORD':
+            comp_cmd.push_suffix(self.getToken().value)
+            self.eat(self.getToken(), 'WORD')
+
+        return comp_cmd

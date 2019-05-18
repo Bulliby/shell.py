@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 19:55:28 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/03/08 11:32:11 by bulliby             \________/\/\_/       #
+#    Updated: 2019/05/18 13:29:48 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,7 @@ class Lexer:
             "LESSAND"   : "<&"
         } 
         #Unary operators
-        self.u_operator = {
+        self.u_operators = {
             "PIPE"      : "|",
             "AND"       : "&",#TODO put an other name
             "LESS"      : "<",
@@ -66,13 +66,13 @@ class Lexer:
         while self.pos < self.len and self.currentChar().isspace():
             self.advance()
 
-    def handleCommand(self):
+    def handleWord(self):
         result = ''
-        while self.pos < self.len and self.currentChar().isalpha():
+        while self.pos < self.len and self.currentChar().isascii() and self.currentChar() != ' ' and self.currentChar() not in self.operators and self.currentChar() not in self.u_operators:
             result += self.currentChar()
             self.advance()
 
-        return Token('CMD', result)
+        return Token('WORD', result)
 
     def handleDoubleOperator(self):
         for k, op in self.operators.items():
@@ -82,7 +82,7 @@ class Lexer:
         return None
 
     def handleOperator(self):
-        for k, op in self.u_operator.items():
+        for k, op in self.u_operators.items():
             if op[0] == self.currentChar():
                     return Token(k, op)
         return None
@@ -98,8 +98,8 @@ class Lexer:
             elif self.handleOperator():
                 tokens.append(self.handleOperator())
                 self.advance()
-            elif self.currentChar().isalpha():
-                tokens.append(self.handleCommand())
+            elif self.currentChar().isascii():
+                tokens.append(self.handleWord())
             else:
                 raise Exception("Invalid Character : " + self.currentChar())
 
