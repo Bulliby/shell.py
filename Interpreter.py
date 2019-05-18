@@ -6,11 +6,11 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 19:56:05 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/05/18 15:28:01 by bulliby             \________/\/\_/       #
+#    Updated: 2019/05/18 16:49:24 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
-
 from Parser import Cmd
+from Parser import File
 from Pipe import Pipe
 from Redir import Redir
 import os
@@ -25,6 +25,8 @@ class Interpreter():
 
     def visit_BinOp(self, node):
         if type(node) is Cmd:
+            return node
+        elif type(node) is File:
             return node
         else:
             if node.token == 'PIPE':

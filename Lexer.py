@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 19:55:28 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/05/18 13:29:48 by bulliby             \________/\/\_/       #
+#    Updated: 2019/05/18 15:36:17 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -68,7 +68,10 @@ class Lexer:
 
     def handleWord(self):
         result = ''
-        while self.pos < self.len and self.currentChar().isascii() and self.currentChar() != ' ' and self.currentChar() not in self.operators and self.currentChar() not in self.u_operators:
+        while self.pos < self.len and self.currentChar().isascii()\
+        and self.currentChar() != ' '\
+        and self.currentChar() not in self.operators\
+        and self.currentChar() not in self.u_operators:
             result += self.currentChar()
             self.advance()
 

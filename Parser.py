@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 20:02:11 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/05/18 13:30:39 by bulliby             \________/\/\_/       #
+#    Updated: 2019/05/18 16:49:49 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,11 +32,12 @@ class Cmd():
         self.suffix.append(suffix)
 
 class File():
-    def __init__(self, file):
+    def __init__(self, file, redir_type):
         self.file = file 
+        self.redir_type = redir_type
 
     def __str__(self):
-        return "This a LEAF with file : {0}".format(self.file)
+        return "This a LEAF with file : {0} and redir {1}".format(self.file, self.redir_type)
 
 class Parser(object):
     def __init__(self, tokens):
@@ -94,15 +95,14 @@ class Parser(object):
             operator = self.getToken().token
             if operator == 'GREAT':
                 self.eat(self.getToken(), 'GREAT')
-                file = Cmd(self.getToken().value)
-            if operator == 'GREATAND':
+            elif operator == 'GREATAND':
                 self.eat(self.getToken(), 'GREATAND')
-                file = Cmd(self.getToken().value)
-            if operator == 'DGREAT':
+            elif operator == 'DGREAT':
                 self.eat(self.getToken(), 'DGREAT')
-                file = Cmd(self.getToken().value)
-            self.eat(self.getToken(), 'CMD')
-            cmd = BinOp(cmd, operator, file)
+            file = File(self.getToken().value, operator)
+            self.eat(self.getToken(), 'WORD')
+            commands = BinOp(commands, operator, file)
+
         return commands
 
 
