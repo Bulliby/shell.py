@@ -9,8 +9,8 @@ lexer = Lexer(input)
 tokens = lexer.splitInput()
 parser = Parser(tokens)
 node = parser.expr()
-interpreter = Interpreter(node)
-
+interpreter = Interpreter()
+"""
 if type(node) is Cmd:
     os.execvp(node.cmd, node.suffix) #Only one CMD
 elif node.token in ['GREAT', 'GREATAND', 'DGREAT'] and type(node.left) is Cmd: # Only a REDIR
@@ -19,4 +19,5 @@ elif node.token in ['GREAT', 'GREATAND', 'DGREAT'] and type(node.left) is Cmd: #
             interpreter.visit_BinOp(node.right)
     )
 else:
-    interpreter.visit_BinOp(node)
+"""
+interpreter.visit_BinOp(node)

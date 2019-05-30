@@ -6,19 +6,30 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 20:02:11 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/05/18 16:49:49 by bulliby             \________/\/\_/       #
+#    Updated: 2019/05/24 23:56:25 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
-
 class BinOp():
     def __init__(self, left, op, right):
         self.left = left
         self.token = self.op = op
         self.right = right
+        self.last = False
 
     def __str__(self):
         return "This is a BinOp with left value {0} and right value {1}".format(self.left, self.right)
+
+    def setLast(self):
+        self.last = True
         
+class UnaryOp():
+    def __init__(self, operator, elem):
+        self.elem = elem
+        self.operator = operator
+
+    def __str__(self):
+        return "This is a UnaryOp with value {0}".format(self.elem)
+
 class Cmd():
     def __init__(self, cmd):
         self.cmd = cmd 
@@ -38,6 +49,10 @@ class File():
 
     def __str__(self):
         return "This a LEAF with file : {0} and redir {1}".format(self.file, self.redir_type)
+
+class Eol():
+    def __str__(self):
+        return "This is the last element of the Command Line"
 
 class Parser(object):
     def __init__(self, tokens):
@@ -64,9 +79,10 @@ class Parser(object):
 
     def expr(self):
         """
-        expr        : commands (AND | OR commands)*
+        expr        : commands (AND | OR commands)* EOL
         """
         node = self.commands()
+
         while self.getToken().token in ['AND', 'OR']:
             if self.getToken().token == 'AND':
                 token = self.getToken().token
@@ -75,6 +91,10 @@ class Parser(object):
                 token = self.getToken().token
                 self.eat(self.getToken(), 'OR')
             node = BinOp(node, token, self.commands())
+        
+        node = BinOp(node, 'EOL', Eol())
+        self.eat(self.getToken(), None)
+        
         return node
 
 

@@ -29,8 +29,20 @@ def exex_command(cmd1, cmd2, cmd3, cmd4):
         os.execvp(cmd3, [cmd3])
 
     os.close(w3)
+    os.close(r)
+    os.close(w)
+    os.close(r2)
+    os.close(w2)
+    os.dup2(r3, 0)
+    buf = os.read(0, 1)
+    while buf:
+        buf = os.read(0, 1)
+        os.write(1, buf)
+    """
+    os.close(w3)
     os.dup2(r3, 0)
     os.execvp(cmd4, [cmd4])
+    """
+    
 
-
-exex_command("ls", "wc", "wc", "wc")
+exex_command("ls", "ls", "ls", "wc")

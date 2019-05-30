@@ -6,18 +6,23 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/05/11 18:32:24 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/05/18 16:49:16 by bulliby             \________/\/\_/       #
+#    Updated: 2019/05/30 14:05:57 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 import os
 
 class Redir():
 
+    def __init__(self):
+        self.pid = None
+
     def exec_redir(self, pipe, node):
         os.wait()
         os.close(pipe.w)
         os.dup2(pipe.r, 0)
+        self.pid = pipe.pid
         self.write(self.open(node), 1)
+        pipe.r, pipe.w = os.pipe()
 
     def write(self, fd, n):
         buf = os.read(0, n)
@@ -34,13 +39,13 @@ class Redir():
          
     def exec_only_redir(self, cmd, file):
         r, w = os.pipe()
-        pid = os.fork()
-        if pid == 0:
+        self.pid = os.fork()
+        if self.pid == 0:
             os.close(r)
             os.dup2(w, 1)
             os.execvp(cmd.cmd, cmd.suffix)
     
-        os.wait()
+        #os.wait()
         os.close(w)
         os.dup2(r, 0)
         self.write(self.open(file), 1)
