@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 19:56:05 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/05/30 13:59:17 by bulliby             \________/\/\_/       #
+#    Updated: 2022/05/01 18:41:02 by waxer               \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 from Parser import Cmd
@@ -31,8 +31,15 @@ class Interpreter():
             return node
         else:
             if node.token == 'PIPE':
-                self.pipe.exec_pipe(self.visit_BinOp(node.left))
-                self.pipe.exec_pipe(self.visit_BinOp(node.right))
+                left = self.visit_BinOp(node.left)
+                if type(left) is Cmd and left.pipePlace == 'start':
+                    self.pipe.pipe_start(left)
+                right = self.visit_BinOp(node.right)
+                if type(right) is Cmd:
+                    if right.pipePlace == 'inter':
+                        self.pipe.pipe_inter(right)
+                    else:
+                        self.pipe.pipe_end(right)
                 #print('pipe')
 
             elif node.token in ['GREAT', 'GREATAND', 'DGREAT']:
@@ -68,6 +75,4 @@ class Interpreter():
                     self.cmd.exec_cmd(node.left)
                 elif node.left.token in ['GREAT', 'GREATAND', 'DGREAT']:
                     pass
-                else:
-                    self.pipe.last()
                 #print('eol')
