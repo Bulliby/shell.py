@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 20:02:11 by bulliby            \     \_\ \     /      #
-#    Updated: 2022/05/01 18:22:03 by waxer               \________/\/\_/       #
+#    Updated: 2022/05/02 23:05:59 by waxer               \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 class BinOp():
@@ -34,8 +34,8 @@ class Cmd():
     def __init__(self, cmd):
         self.cmd = cmd 
         self.suffix = []
-        self.suffix.append(cmd) #The first suffix is the name of the command
-        self.pipePlace = False
+        self.suffix.append(cmd) # The first suffix is the name of the command
+        self.pipePlace = False # Only used to determine the place of commande in pipeline
 
     def __str__(self):
         return "This a LEAF with value : {0} and suffix {1} with place {2}".format(self.cmd, self.suffix, self.pipePlace)
@@ -54,15 +54,6 @@ class File():
 class Eol():
     def __str__(self):
         return "This is the last element of the Command Line"
-
-class Pipe():
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-        self.place = False
-
-    def __str__(self):
-        return "This is a Pipe with left value {0} and right value {1} at place {2}".format(self.left, self.right, self.place)
 
 class Parser(object):
     def __init__(self, tokens):
@@ -112,11 +103,10 @@ class Parser(object):
         commands    : comp_cmd ((PIPE comp_cmd)* | (GREAT file | GREATAND file | DGREAT file)*)
         """
         commands = self.comp_cmd()
-        commands.pipePlace = 'start'
-        pipe_count = 1
-        print(commands)
 
         while self.getToken().token in ['PIPE']:
+            commands.pipePlace = 'start'
+            pipe_count = 1
             operator = self.getToken().token
             self.eat(self.getToken(), 'PIPE')
             comp_cmd_right = self.comp_cmd()
@@ -125,7 +115,6 @@ class Parser(object):
             else:
                 place = 'last'
             comp_cmd_right.pipePlace = place
-            print(comp_cmd_right)
             pipe_count+=1
             commands = BinOp(commands, operator, comp_cmd_right)
                 
