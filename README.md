@@ -1,5 +1,7 @@
-# shell.py
+# Shell.py
 
-Status: **Work In Progress**
+A basic shell with functional **pipe** **cmd** **file redirection**
 
-Write a basic shell interpreter in Python.
+## TODO
+
+* Need to clean the code.
