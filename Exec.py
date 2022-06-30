@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/05/30 12:54:58 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/05/30 13:03:57 by bulliby             \________/\/\_/       #
+#    Updated: 2022/06/30 13:33:29 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,3 +24,4 @@ class Exec():
         self.pid = os.fork()
         if self.pid == 0:
             os.execvp(node.cmd, node.suffix)
+        os.waitpid(self.pid, 0)
