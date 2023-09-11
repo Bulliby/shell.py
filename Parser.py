@@ -100,7 +100,7 @@ class Parser(object):
 
     def commands(self):
         """
-        commands    : comp_cmd ((PIPE comp_cmd)* | (GREAT file | GREATAND file | DGREAT file)*)
+        commands    : comp_cmd ((PIPE comp_cmd)* | (GREAT file))
         """
         commands = self.comp_cmd()
 
@@ -118,15 +118,10 @@ class Parser(object):
             pipe_count+=1
             commands = BinOp(commands, operator, comp_cmd_right)
                 
-
-        while self.getToken().token in ['GREAT', 'GREATAND', 'DGREAT']:
+        if self.getToken().token == 'GREAT':
             operator = self.getToken().token
             if operator == 'GREAT':
                 self.eat(self.getToken(), 'GREAT')
-            elif operator == 'GREATAND':
-                self.eat(self.getToken(), 'GREATAND')
-            elif operator == 'DGREAT':
-                self.eat(self.getToken(), 'DGREAT')
             file = File(self.getToken().value, operator)
             self.eat(self.getToken(), 'WORD')
             commands = BinOp(commands, operator, file)
