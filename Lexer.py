@@ -6,7 +6,7 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 19:55:28 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/05/18 15:36:17 by bulliby             \________/\/\_/       #
+#    Updated: 2022/06/30 17:43:59 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,17 +28,12 @@ class Lexer:
             "AND"    : "&&",
             "DLESS"     : "<<",
             "DGREAT"   :  ">>",
-            "GREATAND"  : "&>",
-            "LESSAND"   : "<&"
         } 
-        #Unary operators
-        self.u_operators = {
+        self.oneCharOperators = {
             "PIPE"      : "|",
-            "AND"       : "&",#TODO put an other name
             "LESS"      : "<",
             "GREAT"     : ">",
         } 
-
 
     def __str__(self):
         return "This object transform the user input in Lexems"
@@ -49,13 +44,14 @@ class Lexer:
     def advance(self):
         self.pos += 1
 
-    def doubleAdvance(self):
+    def advanceTwice(self):
         self.pos += 2
         
     def error(self):
-        raise Exception ('Invalid Token')
+        raise Exception('Invalid Token')
 
-    def peek(self):
+    # For 2 chars operator
+    def peekOneMoreChar(self):
         peek_pos = self.pos + 1
         if peek_pos > self.len - 1:
             return None
@@ -71,21 +67,21 @@ class Lexer:
         while self.pos < self.len and self.currentChar().isascii()\
         and self.currentChar() != ' '\
         and self.currentChar() not in self.operators\
-        and self.currentChar() not in self.u_operators:
+        and self.currentChar() not in self.oneCharOperators:
             result += self.currentChar()
             self.advance()
 
         return Token('WORD', result)
 
-    def handleDoubleOperator(self):
+    def handle2CharOperator(self):
         for k, op in self.operators.items():
             if op[0] == self.currentChar():
-                if op[1] == self.peek():
+                if op[1] == self.peekOneMoreChar():
                     return Token(k, op)
         return None
 
     def handleOperator(self):
-        for k, op in self.u_operators.items():
+        for k, op in self.oneCharOperators.items():
             if op[0] == self.currentChar():
                     return Token(k, op)
         return None
@@ -95,9 +91,9 @@ class Lexer:
         while self.pos < self.len:
             if self.currentChar().isspace():
                 self.handleWhiteSpace()
-            elif self.handleDoubleOperator():
-                tokens.append(self.handleDoubleOperator())
-                self.doubleAdvance()
+            elif self.handle2CharOperator():
+                tokens.append(self.handle2CharOperator())
+                self.advanceTwice()
             elif self.handleOperator():
                 tokens.append(self.handleOperator())
                 self.advance()
