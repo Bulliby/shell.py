@@ -37,45 +37,49 @@ class Cmd():
         # The first suffix is the name of the command
         self.suffix.append(cmd) 
         # Only used to determine the place of commande in pipeline
-        self.pipePlace = False 
+        self.pos = False 
 
     def __str__(self):
-        return "This a LEAF with value : {0} and suffix {1} with place {2}".format(self.cmd, self.suffix, self.pipePlace)
+        return "This a LEAF with value : {0} and suffix {1} with place {2}".format(self.cmd, self.suffix, self.pos)
 
     def push_suffix(self, suffix):
         self.suffix.append(suffix)
 
-class PipeTest():
-    def __init__(self, left, right, nextNode, counter):
-        self.left = left
-        self.right = right
-
-        if counter == 0:
-            self.pos = 'start'
-        elif nextNode.token != 'PIPE':
-            self.pos = 'last'
-        els,q,q, nextNode.token =a= None:
-            self.pos = 'inter'
-
-    def __str__(self):
-        return "This is a Pipe with left value {0}, right value {1} and postition {2}".format(self.left, self.right, self.pos)
-
-class RedirTest():
+class PipeOp():
     def __init__(self, left, right, nextNode):
         self.left = left
         self.right = right
-        if nextNode.token == 'GREAT':
-            self.pos = 'inter'
+
+        if type(self.left) is Cmd:
+            self.left.pos = 'start'
+        if nextNode.token == 'PIPE' or nextNode.token == 'GREAT':
+            self.right.pos = 'inter'
         else:
-            self.pos = 'last'
+            self.right.pos = 'last'
+
+    def __str__(self):
+        return "This is a Pipe with left value {0}, right value {1}".format(self.left, self.right)
+
+class RedirOp():
+    def __init__(self, left, right, nextNode):
+        self.left = left
+        self.right = right
+
+        if type(self.left) is Cmd:
+            self.left.pos = 'start'
+        if nextNode.token == 'GREAT':
+            self.right.pos = 'inter'
+        else:
+            self.right.pos = 'last'
             
     def __str__(self):
-        return "This is a Redir with left value {0}, right value {1} and postition {2}".format(self.left, self.right, self.pos)
+        return "This is a Redir with left value {0}, right value {1}".format(self.left, self.right)
 
 class File():
     def __init__(self, file, redir_type):
         self.file = file 
         self.redir_type = redir_type
+        self.pos = False
 
     def __str__(self):
         return "This a LEAF with file : {0} and redir {1}".format(self.file, self.redir_type)
@@ -129,24 +133,21 @@ class Parser(object):
 
     def commands(self):
         """
-        commands    : comp_cmd ((PIPE comp_cmd)* | (GREAT file))
+        commands    : comp_cmd ((PIPE comp_cmd)* | (GREAT file)*)
         """
         commands = self.comp_cmd()
-
-        counter = 0
+                
         while self.getToken().token in ['PIPE']:
             self.eat(self.getToken(), 'PIPE')
             comp_cmd_right = self.comp_cmd()
-            commands = PipeTest(commands, comp_cmd_right, self.getToken(), counter)
-            counter+=1
-                
-        if self.getToken().token == 'GREAT':
+            commands = PipeOp(commands, comp_cmd_right, self.getToken())
+
+        while self.getToken().token in ['GREAT']:
             operator = self.getToken().token
-            if operator == 'GREAT':
-                self.eat(self.getToken(), 'GREAT')
+            self.eat(self.getToken(), 'GREAT')
             file = File(self.getToken().value, operator)
             self.eat(self.getToken(), 'WORD')
-            commands = BinOp(commands, operator, file)
+            commands = RedirOp(commands, file, self.getToken())
 
         return commands
 

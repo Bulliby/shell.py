@@ -31,6 +31,7 @@ class Pipe():
         self.w2 = False
 
     def pipe_start(self, cmd):
+        print("start")
         pid = os.fork()
         if pid == 0:
             os.close(self.r)
@@ -40,6 +41,7 @@ class Pipe():
         os.waitpid(pid, 0)
 
     def pipe_inter(self, cmd):
+        print("inter")
         self.r2, self.w2 = os.pipe()
         pid = os.fork()
         if pid == 0:
@@ -56,6 +58,7 @@ class Pipe():
         os.waitpid(pid, 0)
 
     def pipe_end(self, cmd):
+        print("last")
         if self.r2 != False:
             pid = os.fork()
             if pid == 0:

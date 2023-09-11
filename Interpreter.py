@@ -12,20 +12,18 @@
 from Parser import Cmd
 from Parser import File
 from Parser import Eol
-from Parser import PipeTest
-from Parser import RedirTest
+from Parser import PipeOp
+from Parser import RedirOp
 from Pipe import Pipe
 from Exec import Exec
 from Redir import Redir
 from Boolean import Boolean
-from IPCChain import IPCChain
 import os
 
 class Interpreter():
 
     def __init__(self):
         self.pipe = Pipe()
-        self.chain = IPCChain()
         self.redir = Redir()
         self.boolean = Boolean()
         self.cmd = Exec()
@@ -34,25 +32,25 @@ class Interpreter():
         if type(node) is Cmd or type(node) is File or type(node) is Eol:
             return node
         else:
-            if type(node) is PipeTest:
-                # Si on commence la chaine pipes
+            if type(node) is PipeOp:
                 left = self.visit_BinOp(node.left)
-                if node.pos == 'start':
-                    self.chain.start_chain(left)
+                if type(left) is Cmd and left.pos == 'start':
+                    # Si on commence la chaine pipe
+                    self.pipe.pipe_start(left)
                 right = self.visit_BinOp(node.right)
-                if node.pos == 'inter':
-                    self.chain.pipe_inter(right)
+                if right.pos == 'inter':
+                    self.pipe.pipe_inter(right)
                 else:
-                    self.chain.pipe_end(right)
+                    self.pipe.pipe_end(right)
                 #print('pipe')
 
-            elif node.token in ['GREAT', 'GREATAND', 'DGREAT']:
-                if type(node.left) is Cmd and type(node.right) is File:
-                    self.visit_BinOp(node.left)
+            elif type(node) is RedirOp:
+                left = self.visit_BinOp(node.left)
+                if type(left) is Cmd and type(node.right) is File:
                     self.redir.exec_only_redir(node.left, node.right)
                 else:
-                    self.visit_BinOp(node.left)
-                    self.redir.exec_redir(self.pipe, self.visit_BinOp(node.right))
+                    right = self.visit_BinOp(node.right)
+                    self.redir.exec_redir(self.pipe, right)
                 #print('redir')
 
             elif node.token in ['OR', 'AND']:
@@ -77,8 +75,8 @@ class Interpreter():
                 self.visit_BinOp(node.right)
                 if type(node.left) is Cmd:
                     self.cmd.exec_cmd(node.left)
-                elif type(node.left) is PipeTest:
+                elif type(node.left) is PipeOp:
                     pass
-                elif type(node.left) is RedirTest:
+                elif type(node.left) is RedirOp:
                     pass
                 #print('eol')

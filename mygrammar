@@ -1,3 +1,3 @@
-expr        : cmd ((PIPE cmd)* | (GREAT file))
+expr        : cmd ((PIPE cmd)* | (GREAT file)*)
 file        : FILE
 cmd         : CMD

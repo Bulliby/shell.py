@@ -17,9 +17,15 @@ class Redir():
         self.pid = None
 
     def exec_redir(self, pipe, file):
-        os.close(pipe.w)
-        self.write(pipe.r, self.open(file), 1)
-        os.close(pipe.r)
+        fd = self.open(file)
+        """
+        In redir sequence, like : ls -l > toto > tata
+        toto is created but empty and only tata is populated 
+        """
+        if file.pos == 'last':
+            os.close(pipe.w)
+            self.write(pipe.r, fd, 1)
+            os.close(pipe.r)
 
     def exec_only_redir(self, cmd, file):
         r, w = os.pipe()
