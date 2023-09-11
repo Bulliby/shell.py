@@ -12,16 +12,20 @@
 from Parser import Cmd
 from Parser import File
 from Parser import Eol
+from Parser import PipeTest
+from Parser import RedirTest
 from Pipe import Pipe
 from Exec import Exec
 from Redir import Redir
 from Boolean import Boolean
+from IPCChain import IPCChain
 import os
 
 class Interpreter():
 
     def __init__(self):
         self.pipe = Pipe()
+        self.chain = IPCChain()
         self.redir = Redir()
         self.boolean = Boolean()
         self.cmd = Exec()
@@ -30,16 +34,16 @@ class Interpreter():
         if type(node) is Cmd or type(node) is File or type(node) is Eol:
             return node
         else:
-            if node.token == 'PIPE':
+            if type(node) is PipeTest:
+                # Si on commence la chaine pipes
                 left = self.visit_BinOp(node.left)
-                if type(left) is Cmd and left.pipePlace == 'start':
-                    self.pipe.pipe_start(left)
+                if node.pos == 'start':
+                    self.chain.start_chain(left)
                 right = self.visit_BinOp(node.right)
-                if type(right) is Cmd or type(rigth) is File:
-                    if right.pipePlace == 'inter':
-                        self.pipe.pipe_inter(right)
-                    else:
-                        self.pipe.pipe_end(right)
+                if node.pos == 'inter':
+                    self.chain.pipe_inter(right)
+                else:
+                    self.chain.pipe_end(right)
                 #print('pipe')
 
             elif node.token in ['GREAT', 'GREATAND', 'DGREAT']:
@@ -73,6 +77,8 @@ class Interpreter():
                 self.visit_BinOp(node.right)
                 if type(node.left) is Cmd:
                     self.cmd.exec_cmd(node.left)
-                elif node.left.token in ['GREAT', 'GREATAND', 'DGREAT']:
+                elif type(node.left) is PipeTest:
+                    pass
+                elif type(node.left) is RedirTest:
                     pass
                 #print('eol')

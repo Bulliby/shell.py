@@ -34,14 +34,43 @@ class Cmd():
     def __init__(self, cmd):
         self.cmd = cmd 
         self.suffix = []
-        self.suffix.append(cmd) # The first suffix is the name of the command
-        self.pipePlace = False # Only used to determine the place of commande in pipeline
+        # The first suffix is the name of the command
+        self.suffix.append(cmd) 
+        # Only used to determine the place of commande in pipeline
+        self.pipePlace = False 
 
     def __str__(self):
         return "This a LEAF with value : {0} and suffix {1} with place {2}".format(self.cmd, self.suffix, self.pipePlace)
 
     def push_suffix(self, suffix):
         self.suffix.append(suffix)
+
+class PipeTest():
+    def __init__(self, left, right, nextNode, counter):
+        self.left = left
+        self.right = right
+
+        if counter == 0:
+            self.pos = 'start'
+        elif nextNode.token != 'PIPE':
+            self.pos = 'last'
+        els,q,q, nextNode.token =a= None:
+            self.pos = 'inter'
+
+    def __str__(self):
+        return "This is a Pipe with left value {0}, right value {1} and postition {2}".format(self.left, self.right, self.pos)
+
+class RedirTest():
+    def __init__(self, left, right, nextNode):
+        self.left = left
+        self.right = right
+        if nextNode.token == 'GREAT':
+            self.pos = 'inter'
+        else:
+            self.pos = 'last'
+            
+    def __str__(self):
+        return "This is a Redir with left value {0}, right value {1} and postition {2}".format(self.left, self.right, self.pos)
 
 class File():
     def __init__(self, file, redir_type):
@@ -104,19 +133,12 @@ class Parser(object):
         """
         commands = self.comp_cmd()
 
+        counter = 0
         while self.getToken().token in ['PIPE']:
-            commands.pipePlace = 'start'
-            pipe_count = 1
-            operator = self.getToken().token
             self.eat(self.getToken(), 'PIPE')
             comp_cmd_right = self.comp_cmd()
-            if (pipe_count > 0 and self.getToken().token == 'PIPE' or self.getToken().token == 'GREAT'):
-                place = 'inter'
-            else:
-                place = 'last'
-            comp_cmd_right.pipePlace = place
-            pipe_count+=1
-            commands = BinOp(commands, operator, comp_cmd_right)
+            commands = PipeTest(commands, comp_cmd_right, self.getToken(), counter)
+            counter+=1
                 
         if self.getToken().token == 'GREAT':
             operator = self.getToken().token

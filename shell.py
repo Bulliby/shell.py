@@ -12,6 +12,7 @@ while True:
     parser = Parser(tokens)
     root = parser.expr()
     interpreter = Interpreter()
+    # To print the tree from the root element
     # print(root)
     # break
     interpreter.visit_BinOp(root)
