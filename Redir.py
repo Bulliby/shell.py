@@ -21,6 +21,18 @@ class Redir():
         self.write(pipe.r, self.open(file), 1)
         os.close(pipe.r)
 
+    def exec_only_redir(self, cmd, file):
+        r, w = os.pipe()
+        self.pid = os.fork()
+        if self.pid == 0:
+            os.close(r)
+            os.dup2(w, 1)
+            os.execvp(cmd.cmd, cmd.suffix)
+        os.close(w)
+        self.write(r, self.open(file), 1)
+        os.close(r)
+        os.waitpid(self.pid, 0)
+
     def write(self, fd, file, n):
         buf = os.read(fd, n)
         while buf:
