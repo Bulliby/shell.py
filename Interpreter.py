@@ -35,7 +35,7 @@ class Interpreter():
                 if type(left) is Cmd and left.pipePlace == 'start':
                     self.pipe.pipe_start(left)
                 right = self.visit_BinOp(node.right)
-                if type(right) is Cmd:
+                if type(right) is Cmd or type(rigth) is File:
                     if right.pipePlace == 'inter':
                         self.pipe.pipe_inter(right)
                     else:

@@ -12,6 +12,17 @@
 
 import os
 
+"""
+    FileDescriptor (fd) are given by the Kernel. The rule is that the kernel
+    assign the next fd number available to the fd created : 
+    -   if we have the following fd : 0,1,2 the next one will be 3
+    -   if we have 0,1,2,4 it will fill the gap and the new one will have
+        number 3...
+
+    dup2(fd, fd2):
+    close fd2 and duplicate fd so will be created with the fd2 number. 
+"""
+
 class Pipe():
 
     def __init__(self):
@@ -23,6 +34,7 @@ class Pipe():
         pid = os.fork()
         if pid == 0:
             os.close(self.r)
+            # Close stdout and duplicate w. (w is now stdout)
             os.dup2(self.w, 1)
             os.execvp(cmd.cmd, cmd.suffix)
         os.waitpid(pid, 0)
@@ -33,6 +45,7 @@ class Pipe():
         if pid == 0:
             os.close(self.w)
             os.close(self.r2)
+            # Close stdin and duplicate r. (r is now stdin)
             os.dup2(self.r, 0)
             os.dup2(self.w2, 1)
             os.execvp(cmd.cmd, cmd.suffix)

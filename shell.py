@@ -10,9 +10,11 @@ while True:
     lexer = Lexer(str)
     tokens = lexer.splitInput()
     parser = Parser(tokens)
-    node = parser.expr()
+    root = parser.expr()
     interpreter = Interpreter()
-    interpreter.visit_BinOp(node)
+    # print(root)
+    # break
+    interpreter.visit_BinOp(root)
     str = input('42sh > ')
     if str == '':
         break

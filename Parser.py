@@ -17,7 +17,7 @@ class BinOp():
         self.last = False
 
     def __str__(self):
-        return "This is a BinOp with left value {0} and right value {1}".format(self.left, self.right)
+        return "This is a BinOp with left value {0}, token {1}, right value {2}".format(self.left, self.token, self.right)
 
     def setLast(self):
         self.last = True
@@ -110,7 +110,7 @@ class Parser(object):
             operator = self.getToken().token
             self.eat(self.getToken(), 'PIPE')
             comp_cmd_right = self.comp_cmd()
-            if (pipe_count > 0 and self.getToken().token == 'PIPE'):
+            if (pipe_count > 0 and self.getToken().token == 'PIPE' or self.getToken().token == 'GREAT'):
                 place = 'inter'
             else:
                 place = 'last'
