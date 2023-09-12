@@ -211,3 +211,33 @@ separator        : separator_op linebreak
 sequential_sep   : ';' linebreak
                  | newline_list
                  ;
+
+
+
+
+My 
+
+pipe_sequence    :                             command
+                 | pipe_sequence '|' linebreak command
+                 ;
+command          : simple_command
+                 | compound_command
+                 | compound_command redirect_list
+                 | function_definition
+                 ;
+redirect_list    :               io_redirect
+                 | redirect_list io_redirect
+                 ;
+io_redirect      :           io_file
+                 | IO_NUMBER io_file
+                 |           io_here
+                 | IO_NUMBER io_here
+                 ;
+io_file          : '<'       filename
+                 | LESSAND   filename
+                 | '>'       filename
+                 | GREATAND  filename
+                 | DGREAT    filename
+                 | LESSGREAT filename
+                 | CLOBBER   filename
+                 ;
