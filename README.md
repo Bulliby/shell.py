@@ -4,5 +4,5 @@ A basic shell, the grammar used is the following : [grammar](mygrammar)
 
 I handle **Pipe**, **Redirection** and **Command**. It's schedule to make grow the grammar handled.
 
-> I realised this project will reading  https://ruslanspivak.com/archives.html
+> I realised this project will reading  [Let's build a simple interpreter](https://ruslanspivak.com/archives.html)
 
