@@ -6,3 +6,8 @@ I handle **Pipe**, **Redirection** and **Command**. It's schedule to make grow t
 
 > I realised this project will reading  [Let's build a simple interpreter](https://ruslanspivak.com/archives.html)
 
+## AstDot
+
+```shell
+python generateAstDot.py test > ast.dot && dot -Tpng -o ast.png ast.dot
+```

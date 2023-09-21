@@ -4,3 +4,4 @@ Lexer_parser
 __pycache__/
 test
 toto
+ast*
