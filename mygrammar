@@ -1,10 +1,10 @@
-program             : statements EOL
+program             : statements_list EOL
                     ;
-statements          : statement_list SEMI statement_list
-                    | statement_list SEMI
-                    | statement_list
+statements_list     : statements
+                    | statements SEMI
+                    | statements SEMI statement_list
                     ;
-statement_list      | pipe_sequence redir_sequence
+statements          | pipe_sequence redir_sequence
                     | command redir_sequence
                     | pipe_sequence
                     | command
