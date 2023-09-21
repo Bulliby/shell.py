@@ -1,3 +1,21 @@
-expr        : cmd ((PIPE cmd)* | (GREAT file)*)
-file        : FILE
-cmd         : CMD
+program             : statements EOL
+                    ;
+statements          : statement_list SEMI statement_list
+                    | statement_list SEMI
+                    | statement_list
+                    ;
+statement_list      | pipe_sequence redir_sequence
+                    | command redir_sequence
+                    | pipe_sequence
+                    | command
+                    ;
+pipe_sequence       | pipe_sequence
+                    | command PIPE command
+                    ;
+redir_sequence      | redir_sequence
+                    | REDIR FILE
+                    ;
+command             | COMMAND
+
+
+TOKENS [COMMAND, REDIR, FILE, SEMI, PIPE]
