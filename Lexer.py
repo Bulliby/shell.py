@@ -33,6 +33,7 @@ class Lexer:
             "PIPE"      : "|",
             "LESS"      : "<",
             "GREAT"     : ">",
+            "SEMI"      : ";",
         } 
 
     def __str__(self):

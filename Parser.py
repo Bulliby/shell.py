@@ -46,31 +46,17 @@ class Cmd():
         self.suffix.append(suffix)
 
 class PipeOp():
-    def __init__(self, left, right, nextNode):
+    def __init__(self, left, right):
         self.left = left
         self.right = right
-
-        if type(self.left) is Cmd:
-            self.left.pos = 'start'
-        if nextNode.token == 'PIPE' or nextNode.token == 'GREAT':
-            self.right.pos = 'inter'
-        else:
-            self.right.pos = 'last'
 
     def __str__(self):
         return "This is a Pipe with left value {0}, right value {1}".format(self.left, self.right)
 
 class RedirOp():
-    def __init__(self, left, right, nextNode):
+    def __init__(self, left, right):
         self.left = left
         self.right = right
-
-        if type(self.left) is Cmd:
-            self.left.pos = 'start'
-        if nextNode.token == 'GREAT':
-            self.right.pos = 'inter'
-        else:
-            self.right.pos = 'last'
             
     def __str__(self):
         return "This is a Redir with left value {0}, right value {1}".format(self.left, self.right)
@@ -108,58 +94,79 @@ class Parser(object):
         follow the given grammar
         """
         if token.token != value:
-            raise Exception("Parse Error, Got {0}, Expected {1}".format(token, value))
-        self.getNextToken()
+            print("Parse Error, Got {0}, Expected {1}".format(token, value))
+        else:
+            self.getNextToken()
 
-    def expr(self):
+    def program(self):
         """
-        expr        : commands (AND | OR commands)* EOL
+        program        : statements EOL
         """
-        node = self.commands()
+        node = self.statements_list()
 
-        while self.getToken().token in ['AND', 'OR']:
-            if self.getToken().token == 'AND':
-                token = self.getToken().token
-                self.eat(self.getToken(), 'AND')
-            elif self.getToken().token == 'OR':
-                token = self.getToken().token
-                self.eat(self.getToken(), 'OR')
-            node = BinOp(node, token, self.commands())
-        
         node = BinOp(node, 'EOL', Eol())
         self.eat(self.getToken(), None)
         
         return node
 
-    def commands(self):
+    def statements_list(self):
         """
-        commands    : comp_cmd ((PIPE comp_cmd)* | (GREAT file)*)
+        statements_list     : statements
+                            | statements SEMI
+                            | statements SEMI statement_list
+                            ;
         """
-        commands = self.comp_cmd()
-                
-        while self.getToken().token in ['PIPE']:
-            self.eat(self.getToken(), 'PIPE')
-            comp_cmd_right = self.comp_cmd()
-            commands = PipeOp(commands, comp_cmd_right, self.getToken())
+        node = self.statements()
 
-        while self.getToken().token in ['GREAT']:
-            operator = self.getToken().token
-            self.eat(self.getToken(), 'GREAT')
-            file = File(self.getToken().value, operator)
-            self.eat(self.getToken(), 'WORD')
-            commands = RedirOp(commands, file, self.getToken())
+        results = [node]
+        
+        while self.getToken().token == 'SEMI':
+            self.eat(self.getToken(), 'SEMI')
+            results.append(self.statements())
+        
+        return results
 
-        return commands
-
-    def comp_cmd(self):
+    def statements(self):
         """
-        comp_cmd    : cmd (cmd_suffix)*
+        statements          | command
+                            | statements pipe_sequence
+                            | statements redir_sequence
+                            ;
+        """
+        left = self.command()
+
+        if self.getToken().token == 'PIPE':
+            self.pipe_sequence(left)
+        if self.getToken().token == 'GREAT':
+            self.redir_sequence(left)
+
+        return left
+
+    def pipe_sequence(self, left):
+        """
+        pipe_sequence       | pipe_sequence
+                            | pipe_sequence redir_sequence
+                            | PIPE command
+                            ;
+        """
+        self.eat(self.getToken(), 'PIPE')
+        PipeOp(left, self.statements())
+
+    def redir_sequence(self, left):
+        """
+        redir_sequence      | redir_sequence
+                            | REDIR FILE
+                            ;
+        """
+        self.eat(self.getToken(), 'GREAT')
+        RedirOp(left, self.statements())
+
+    def command(self):
+        """
+        command             | COMMAND
+                            ;
         """
         comp_cmd = Cmd(self.getToken().value)
         self.eat(self.getToken(), 'WORD')
-
-        while self.getToken().token == 'WORD':
-            comp_cmd.push_suffix(self.getToken().value)
-            self.eat(self.getToken(), 'WORD')
 
         return comp_cmd

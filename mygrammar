@@ -4,18 +4,19 @@ statements_list     : statements
                     | statements SEMI
                     | statements SEMI statement_list
                     ;
-statements          | pipe_sequence redir_sequence
-                    | command redir_sequence
-                    | pipe_sequence
-                    | command
+statements          | command
+                    | statements pipe_sequence
+                    | statements redir_sequence
                     ;
 pipe_sequence       | pipe_sequence
-                    | command PIPE command
+                    | pipe_sequence redir_sequence
+                    | PIPE command
                     ;
 redir_sequence      | redir_sequence
                     | REDIR FILE
                     ;
 command             | COMMAND
+                    ;
 
 
 TOKENS [COMMAND, REDIR, FILE, SEMI, PIPE]
