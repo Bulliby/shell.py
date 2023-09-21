@@ -82,7 +82,7 @@ class File():
         self.pos = False
 
     def __str__(self):
-        return "This a LEAF with file : {0} and redir {1}".format(self.file, self.redir_type)
+        return "This a FILE with file : {0} and redir {1}".format(self.file, self.redir_type)
 
 class Eol():
     def __str__(self):
@@ -108,7 +108,7 @@ class Parser(object):
         follow the given grammar
         """
         if token.token != value:
-            raise Exception("Parse Error")
+            raise Exception("Parse Error, Got {0}, Expected {1}".format(token, value))
         self.getNextToken()
 
     def expr(self):
