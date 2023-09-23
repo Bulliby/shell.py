@@ -2,6 +2,5 @@ calc5.py
 grammar_old
 Lexer_parser
 __pycache__/
-test
-toto
 ast*
+command_sample

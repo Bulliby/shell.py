@@ -122,7 +122,7 @@ class Parser(object):
 
     def program(self):
         """
-        program        : statements EOL
+        program             : statements_list EOL
         """
         nodes = self.statements_list()
 
@@ -132,30 +132,36 @@ class Parser(object):
         return node
 
     def statements_list(self):
-        node = self.pipes_list()
+        """
+        commands            : pipes_redirs_list (SEMI pipes_redirs_list)*
+        """
+        node = self.pipes_redirs_list()
 
         semilicon = Semi(node)
         
         while self.getToken().token == 'SEMI':
             self.eat(self.getToken(), 'SEMI')
-            semilicon.childs.append(self.pipes_list())
+            semilicon.childs.append(self.pipes_redirs_list())
         
         return semilicon
 
-    def pipes_list(self):
-        node = self.statements()
+    def pipes_redirs_list(self):
+        """
+        pipes_redirs_list   : redir_sequence (PIPE redir_sequence)*
+        """
+        node = self.redir_sequence()
 
         pipes = PipeSequence(node)
         
         while self.getToken().token == 'PIPE':
             self.eat(self.getToken(), 'PIPE')
-            pipes.childs.append(self.statements())
+            pipes.childs.append(self.redir_sequence())
         
         return pipes
 
-    def statements(self):
+    def redir_sequence(self):
         """
-        statements : 
+        redir_sequence      : pipe_sequence (GREAT file)*
         """
         node = self.pipe_sequence()
 
@@ -173,7 +179,7 @@ class Parser(object):
 
     def pipe_sequence(self):
         """
-        pipe_sequence : command (PIPE command)*
+        pipe_sequence       : command (PIPE command)*
         """
         node = self.command()
         count = 0
@@ -186,14 +192,16 @@ class Parser(object):
         return node
 
     def file(self, operator):
+        """
+        file                : FILE
+        """
         file = File(self.getToken().value, operator)
         self.eat(self.getToken(), 'WORD')
         return file
 
     def command(self):
         """
-        command             | COMMAND
-                            ;
+        command             : WORD
         """
         comp_cmd = Cmd(self.getToken().value)
         self.eat(self.getToken(), 'WORD')

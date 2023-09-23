@@ -17,9 +17,9 @@ class Redir():
         self.pid = None
 
     def exec_piped_redir(self, pipe, redirOp, file):
-        print("piped")
         fd = self.open(file)
         """
+        (comment 1)
         In redir sequence, like : ls -l > toto > tata
         toto is created but empty and only tata is populated 
         For POSIX shell sh
@@ -30,8 +30,8 @@ class Redir():
             os.close(pipe.r)
 
     def exec_redir(self, cmd, file, redirOp):
-        print("simple")
         fd = self.open(file)
+        # same reason that (comment 1)
         if redirOp.next != 'GREAT':
             r, w = os.pipe()
             self.pid = os.fork()
@@ -51,5 +51,5 @@ class Redir():
             buf = os.read(fd, n)
 
     def open(self, node):
-        return os.open(node.file, os.O_TRUNC | os.O_CREAT | os.O_WRONLY)
+        return os.open(node.file, os.O_TRUNC | os.O_CREAT | os.O_WRONLY, mode=0o664)
 

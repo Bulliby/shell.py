@@ -37,6 +37,7 @@ class Interpreter():
         if type(node) is Cmd and node.lonely == False:
             return node
 
+        # If we have only one command, we simply execute it
         if type(node) is Cmd and node.lonely == True:
             return self.cmd.exec_cmd(node)
 
@@ -47,6 +48,7 @@ class Interpreter():
             for child in node.childs:
                 self.visit_BinOp(child)
 
+        # to handle expression like ls -l > toto | ls -l | grep I > tata
         if type(node) is PipeSequence:
             for child in node.childs:
                 self.pipe = Pipe()

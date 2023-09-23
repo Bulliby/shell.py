@@ -1,42 +1,13 @@
-program             : statements_list EOL
-                    ;
-statements_list     : statements
-                    | statements SEMI
-                    | statements SEMI statement_list
-                    ;
-statements          | command
-                    | statements pipe_sequence
-                    | statements redir_sequence
-                    ;
-pipe_sequence       | pipe_sequence
-                    | pipe_sequence redir_sequence
-                    | PIPE command
-                    ;
-redir_sequence      | redir_sequence
-                    | REDIR FILE
-                    ;
-command             | COMMAND
-                    ;
+program             : commands EOL
 
+commands            : pipes_list (SEMI pipes_list)*
 
-TOKENS [COMMAND, REDIR, FILE, SEMI, PIPE]
+pipes_redirs_list   : redir_sequence (PIPE statements)*
 
+redir_sequence      : pipes_sequnce (GREAT file)*
 
-Left associativity
+pipe_sequence       : command (PIPE command)*
 
-program : compound_statements ((REDIR | PIPE) compound_statements)*
+command             : WORD
 
-compound_statements : factor (SEMI factor)*
-
-factor : COMMAD
-
-
-program:                statements_list EOL
-
-statements_list:        (stamments | SEMI)*
-
-statements:             (pipe_sequence | redir_sequence)*
-
-pipe_sequence:          (command | PIPE)*
-
-redir_sequence:         (pipe_sequence 
+file                : FILE

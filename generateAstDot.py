@@ -1,9 +1,9 @@
-###############################################################################
-#  AST visualizer - generates a DOT file for Graphviz.                        #
-#                                                                             #
-#  To generate an image from the DOT file run $ dot -Tpng -o ast.png ast.dot  #
-#                                                                             #
-###############################################################################
+"""
+Permit to read my parser output and print it in a png, really useful to see 
+if your AST tree looks correct
+
+python generateAstDot.py command_sample > ast.dot && dot -Tpng -o ast.png ast.dot
+"""
 import argparse
 import textwrap
 
