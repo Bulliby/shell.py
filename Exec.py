@@ -21,6 +21,7 @@ class Exec():
         self.pid = None
 
     def exec_cmd(self, node):
+        print("simple exec")
         self.pid = os.fork()
         if self.pid == 0:
             os.execvp(node.cmd, node.suffix)

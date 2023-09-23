@@ -11,9 +11,12 @@ from Lexer import Lexer
 from Parser import Parser
 
 from Parser import PipeOp
+from Parser import RedirOp
 from Parser import Cmd
 from Parser import Semi
+from Parser import PipeSequence
 from Parser import Eol
+from Parser import File
 
 class ASTVisualizer():
     def __init__(self, parser):
@@ -32,7 +35,13 @@ class ASTVisualizer():
 
     def visit_BinOp(self, node):
         if type(node) is Cmd:
-            s = '  node{} [label="{}"]\n'.format(self.ncount, "cmd") 
+            s = '  node{} [label="{}"]\n'.format(self.ncount, node.cmd) 
+            self.dot_body.append(s)
+            node._num = self.ncount
+            self.ncount += 1
+
+        if type(node) is File:
+            s = '  node{} [label="{}"]\n'.format(self.ncount, node.file) 
             self.dot_body.append(s)
             node._num = self.ncount
             self.ncount += 1
@@ -44,7 +53,16 @@ class ASTVisualizer():
             self.ncount += 1
             for child in node.childs:
                 self.visit_BinOp(child)
+                s = '  node{} -> node{}\n'.format(node._num, child._num)
+                self.dot_body.append(s)
+
+        if type(node) is PipeSequence:
+            s = '  node{} [label="{}"]\n'.format(self.ncount, "pipes")
+            self.dot_body.append(s)
+            node._num = self.ncount
+            self.ncount += 1
             for child in node.childs:
+                self.visit_BinOp(child)
                 s = '  node{} -> node{}\n'.format(node._num, child._num)
                 self.dot_body.append(s)
 
@@ -60,13 +78,25 @@ class ASTVisualizer():
             s = '  node{} -> node{}\n'.format(node._num, node.right._num)
             self.dot_body.append(s)
 
+        if type(node) is RedirOp:
+            s = '  node{} [label="{}"]\n'.format(self.ncount, "redir")
+            self.dot_body.append(s)
+            node._num = self.ncount
+            self.ncount += 1
+            self.visit_BinOp(node.left)
+            s = '  node{} -> node{}\n'.format(node._num, node.left._num)
+            self.dot_body.append(s)
+            self.visit_BinOp(node.right)
+            s = '  node{} -> node{}\n'.format(node._num, node.right._num)
+            self.dot_body.append(s)
+
         if type(node) is Eol:
             s = '  node{} [label="{}"]\n'.format(self.ncount, "eol")
             self.dot_body.append(s)
             node._num = self.ncount
             self.ncount += 1
-            self.visit_BinOp(node.elem)
-            s = '  node{} -> node{}\n'.format(node._num, node.elem._num)
+            left = self.visit_BinOp(node.left)
+            s = '  node{} -> node{}\n'.format(node._num, node.left._num)
             self.dot_body.append(s)
 
     def gendot(self):

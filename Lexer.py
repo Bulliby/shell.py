@@ -24,10 +24,10 @@ class Lexer:
         self.pos = 0
         self.len = len(self.userInput)
         self.operators = {
-            "OR"     : "||",
-            "AND"    : "&&",
+            "OR"        : "||",
+            "AND"       : "&&",
             "DLESS"     : "<<",
-            "DGREAT"   :  ">>",
+            "DGREAT"    :  ">>",
         } 
         self.oneCharOperators = {
             "PIPE"      : "|",
@@ -67,8 +67,8 @@ class Lexer:
         result = ''
         while self.pos < self.len and self.currentChar().isascii()\
         and self.currentChar() != ' '\
-        and self.currentChar() not in self.operators\
-        and self.currentChar() not in self.oneCharOperators:
+        and self.currentChar() not in self.operators.values()\
+        and self.currentChar() not in self.oneCharOperators.values():
             result += self.currentChar()
             self.advance()
 

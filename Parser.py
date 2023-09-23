@@ -9,57 +9,74 @@
 #    Updated: 2022/05/02 23:05:59 by waxer               \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
-class BinOp():
-    def __init__(self, left, op, right):
-        self.left = left
-        self.token = self.op = op
-        self.right = right
-        self.last = False
+class Semi():
+    def __init__(self, child):
+        self.childs = [child]
 
     def __str__(self):
-        return "This is a BinOp with left value {0}, token {1}, right value {2}".format(self.left, self.token, self.right)
-
-    def setLast(self):
-        self.last = True
+        ret = ";SEMILICON compound statements containing :"
+        count = 0
+        for child in self.childs:
+            ret += "For index {0}: {1}".format(count, child)
+            count+=1
+        return ret
         
-class UnaryOp():
-    def __init__(self, operator, elem):
-        self.elem = elem
-        self.operator = operator
-
-    def __str__(self):
-        return "This is a UnaryOp with value {0}".format(self.elem)
-
 class Cmd():
     def __init__(self, cmd):
         self.cmd = cmd 
         self.suffix = []
         # The first suffix is the name of the command
         self.suffix.append(cmd) 
-        # Only used to determine the place of commande in pipeline
-        self.pos = False 
+        # Used to identify a simple command like ls
+        self.lonely = False
 
     def __str__(self):
-        return "This a LEAF with value : {0} and suffix {1} with place {2}".format(self.cmd, self.suffix, self.pos)
+        return ";COMMAND with value : {0} and suffix {1} with place {2}".format(self.cmd, self.suffix, self.pos)
 
     def push_suffix(self, suffix):
         self.suffix.append(suffix)
 
+    def setLonely(self):
+        self.lonely = True
+
 class PipeOp():
-    def __init__(self, left, right):
+    def __init__(self, left, right, nnext, start):
         self.left = left
         self.right = right
+        self.next = nnext
+        # We do a special case for the starting pipe sequence
+        # and for end. It's related of how os.pipe works
+        self.start = start
+        self.last = False
+
+    def setLast(self):
+        self.last = True
 
     def __str__(self):
-        return "This is a Pipe with left value {0}, right value {1}".format(self.left, self.right)
+        return ";Pipe with left value {0}, right value {1} and next {2} start info {3} last info {4}".format(self.left, self.right, self.next, self.start, self.last)
+
+class PipeSequence():
+    def __init__(self, child):
+        self.childs = [child]
+
+    def __str__(self):
+        ret = "; PipeSequence containing :"
+        count = 0
+        for child in self.childs:
+            ret += "For index {0}: {1}".format(count, child)
+            count+=1
+        return ret
 
 class RedirOp():
-    def __init__(self, left, right):
+    def __init__(self, left, right, nnext, piped_before):
         self.left = left
         self.right = right
+        self.next = nnext
+        # This a special case who handle the redirecting output form a pipe sequence
+        self.piped_before = piped_before
             
     def __str__(self):
-        return "This is a Redir with left value {0}, right value {1}".format(self.left, self.right)
+        return ";Redir with left value {0}, right value {1} and next {2}".format(self.left, self.right, self.next)
 
 class File():
     def __init__(self, file, redir_type):
@@ -71,8 +88,13 @@ class File():
         return "This a FILE with file : {0} and redir {1}".format(self.file, self.redir_type)
 
 class Eol():
+    def __init__(self, left, op, right):
+        self.left = left
+        self.token = self.op = op
+        self.right = right
+
     def __str__(self):
-        return "This is the last element of the Command Line"
+        return ";Eol with left value {0}, token {1}, right value {2}".format(self.left, self.token, self.right)
 
 class Parser(object):
     def __init__(self, tokens):
@@ -102,64 +124,71 @@ class Parser(object):
         """
         program        : statements EOL
         """
-        node = self.statements_list()
+        nodes = self.statements_list()
 
-        node = BinOp(node, 'EOL', Eol())
+        node = Eol(nodes, 'EOL', None)
         self.eat(self.getToken(), None)
         
         return node
 
     def statements_list(self):
-        """
-        statements_list     : statements
-                            | statements SEMI
-                            | statements SEMI statement_list
-                            ;
-        """
-        node = self.statements()
+        node = self.pipes_list()
 
-        results = [node]
+        semilicon = Semi(node)
         
         while self.getToken().token == 'SEMI':
             self.eat(self.getToken(), 'SEMI')
-            results.append(self.statements())
+            semilicon.childs.append(self.pipes_list())
         
-        return results
+        return semilicon
+
+    def pipes_list(self):
+        node = self.statements()
+
+        pipes = PipeSequence(node)
+        
+        while self.getToken().token == 'PIPE':
+            self.eat(self.getToken(), 'PIPE')
+            pipes.childs.append(self.statements())
+        
+        return pipes
 
     def statements(self):
         """
-        statements          | command
-                            | statements pipe_sequence
-                            | statements redir_sequence
-                            ;
+        statements : 
         """
-        left = self.command()
+        node = self.pipe_sequence()
 
-        if self.getToken().token == 'PIPE':
-            self.pipe_sequence(left)
-        if self.getToken().token == 'GREAT':
-            self.redir_sequence(left)
+        piped_before =  type(node) is PipeOp
 
-        return left
+        while self.getToken().token == 'GREAT':
+            operator = self.getToken().token
+            self.eat(self.getToken(), 'GREAT')
+            node = RedirOp(node, self.file(operator), self.getToken().token, piped_before)
 
-    def pipe_sequence(self, left):
-        """
-        pipe_sequence       | pipe_sequence
-                            | pipe_sequence redir_sequence
-                            | PIPE command
-                            ;
-        """
-        self.eat(self.getToken(), 'PIPE')
-        PipeOp(left, self.statements())
+        if type(node) is Cmd:
+            node.setLonely()
 
-    def redir_sequence(self, left):
+        return node
+
+    def pipe_sequence(self):
         """
-        redir_sequence      | redir_sequence
-                            | REDIR FILE
-                            ;
+        pipe_sequence : command (PIPE command)*
         """
-        self.eat(self.getToken(), 'GREAT')
-        RedirOp(left, self.statements())
+        node = self.command()
+        count = 0
+
+        while self.getToken().token == 'PIPE':
+            self.eat(self.getToken(), 'PIPE')
+            node = PipeOp(node, self.command(), self.getToken().token, count == 0)
+            count+=1
+
+        return node
+
+    def file(self, operator):
+        file = File(self.getToken().value, operator)
+        self.eat(self.getToken(), 'WORD')
+        return file
 
     def command(self):
         """
@@ -168,5 +197,9 @@ class Parser(object):
         """
         comp_cmd = Cmd(self.getToken().value)
         self.eat(self.getToken(), 'WORD')
+
+        while self.getToken().token == 'WORD':
+            comp_cmd.push_suffix(self.getToken().value)
+            self.eat(self.getToken(), 'WORD')
 
         return comp_cmd

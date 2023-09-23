@@ -11,11 +11,11 @@ while True:
     tokens = lexer.splitInput()
     parser = Parser(tokens)
     root = parser.program()
-    #interpreter = Interpreter()
+    interpreter = Interpreter()
     # To print the tree from the root element
-    # print(root)
     # break
-    #interpreter.visit_BinOp(root)
+    #print(root)
+    interpreter.visit_BinOp(root)
     str = input('42sh > ')
     if str == '':
         break

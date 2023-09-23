@@ -16,28 +16,33 @@ class Redir():
     def __init__(self):
         self.pid = None
 
-    def exec_redir(self, pipe, file):
+    def exec_piped_redir(self, pipe, redirOp, file):
+        print("piped")
         fd = self.open(file)
         """
         In redir sequence, like : ls -l > toto > tata
         toto is created but empty and only tata is populated 
+        For POSIX shell sh
         """
-        if file.pos == 'last':
+        if redirOp.next != 'GREAT':
             os.close(pipe.w)
             self.write(pipe.r, fd, 1)
             os.close(pipe.r)
 
-    def exec_only_redir(self, cmd, file):
-        r, w = os.pipe()
-        self.pid = os.fork()
-        if self.pid == 0:
+    def exec_redir(self, cmd, file, redirOp):
+        print("simple")
+        fd = self.open(file)
+        if redirOp.next != 'GREAT':
+            r, w = os.pipe()
+            self.pid = os.fork()
+            if self.pid == 0:
+                os.close(r)
+                os.dup2(w, 1)
+                os.execvp(cmd.cmd, cmd.suffix)
+            os.close(w)
+            self.write(r, self.open(file), 1)
             os.close(r)
-            os.dup2(w, 1)
-            os.execvp(cmd.cmd, cmd.suffix)
-        os.close(w)
-        self.write(r, self.open(file), 1)
-        os.close(r)
-        os.waitpid(self.pid, 0)
+            os.waitpid(self.pid, 0)
 
     def write(self, fd, file, n):
         buf = os.read(fd, n)
@@ -46,8 +51,5 @@ class Redir():
             buf = os.read(fd, n)
 
     def open(self, node):
-        if node.redir_type == 'GREAT':
-            return os.open(node.file, os.O_TRUNC | os.O_CREAT | os.O_WRONLY)
-        else:
-            return os.open(node.file, os.O_CREAT | os.O_APPEND | os.O_WRONLY)
+        return os.open(node.file, os.O_TRUNC | os.O_CREAT | os.O_WRONLY)
 

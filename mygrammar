@@ -20,3 +20,23 @@ command             | COMMAND
 
 
 TOKENS [COMMAND, REDIR, FILE, SEMI, PIPE]
+
+
+Left associativity
+
+program : compound_statements ((REDIR | PIPE) compound_statements)*
+
+compound_statements : factor (SEMI factor)*
+
+factor : COMMAD
+
+
+program:                statements_list EOL
+
+statements_list:        (stamments | SEMI)*
+
+statements:             (pipe_sequence | redir_sequence)*
+
+pipe_sequence:          (command | PIPE)*
+
+redir_sequence:         (pipe_sequence 
