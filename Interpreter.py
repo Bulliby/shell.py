@@ -68,6 +68,7 @@ class Interpreter():
         if type(node) is RedirOp:
             left = self.visit_BinOp(node.left)
             right = self.visit_BinOp(node.right)
+            # If we were previously in a pipe
             if node.piped_before:
                 self.redir.exec_piped_redir(self.pipe, node, right)
             else:

@@ -1,10 +1,10 @@
 program             : commands EOL
 
-commands            : pipes_list (SEMI pipes_list)*
+commands            : pipes_redirs_list (SEMI pipes_redirs_list)*
 
-pipes_redirs_list   : redir_sequence (PIPE statements)*
+pipes_redirs_list   : redir_sequence (PIPE redir_sequence)*
 
-redir_sequence      : pipes_sequnce (GREAT file)*
+redir_sequence      : pipes_sequence (GREAT file)*
 
 pipe_sequence       : command (PIPE command)*
 
