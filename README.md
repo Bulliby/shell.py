@@ -6,8 +6,6 @@ I handle **Pipe**, simple **Redirection**, **Command** and **Semicolon**. It's s
 
 It's a **POSIX** shell *(I believe)* because it follow GNU **sh** behaviour. 
 
-On my **TODO** list i can put the **AND** and **OR** operator and error handling for commands. 
-
 ## AstDot
 
 I made a long jump in this project when i was able to visualize how my AST was after parsing step.
@@ -35,3 +33,7 @@ ls -l | grep --color=never ast | wc -l > toto | ls | grep I > tata > tutu | ls |
 ![graph](/github/graph.png)
 
 > When you have this, and validated it, you can tackle the interpretation  :moneybag:
+
+# TODO
+
+On my **TODO** list i can put the **AND** and **OR** operator and error handling for commands.
