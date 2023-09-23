@@ -12,17 +12,7 @@ On my **TODO** list i can put the **AND** and **OR** operator and error handling
 
 I made a long jump in this project when i was able to visualize how my AST was after parsing step.
 
-Look this output for the following command it's awesome :
-
-
-```
-ls -l | grep --color=never ast | wc -l > toto | ls | grep I > tata > tutu | ls | wc -c > titi ; cat tata; cat toto; cat tutu
-```
-
-![graph](/github/graph.png)
-
-
-> When you have this, and validated it, you can tackle the interpretation  :U+1F911:
+Look at the end of this README for example
 
 ## lsbasi
 
@@ -33,3 +23,15 @@ ls -l | grep --color=never ast | wc -l > toto | ls | grep I > tata > tutu | ls |
 For the **forks** logic and behaviour I one more time really appreciated the **lsbasi** tutorial on processes. It make me close the gap of my understanding on it works.
 
 [Let's build a web server](https://ruslanspivak.com/lsbasi-part1)
+
+## Graph
+
+Look this output for the following command it's awesome :
+
+```
+ls -l | grep --color=never ast | wc -l > toto | ls | grep I > tata > tutu | ls | wc -c > titi ; cat tata; cat toto; cat tutu
+```
+
+![graph](/github/graph.png)
+
+> When you have this, and validated it, you can tackle the interpretation  :moneybag:
