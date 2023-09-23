@@ -10,7 +10,7 @@ It's a **POSIX** shell *(I believe)* because it follow GNU **sh** behaviour.
 
 I made a long jump in this project when i was able to visualize how my AST was after parsing step.
 
-Look at the end of this README for example
+Look at the end of this README for example or the [generateAstDot file](generateAstDot.py)
 
 ## lsbasi
 
