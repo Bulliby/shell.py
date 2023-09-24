@@ -27,7 +27,7 @@ For the **forks** logic and behaviour I one more time really appreciated the **l
 Look this output for the following command:
 
 ```
-ls -2 || echo "YES"; ls -l > toto > titi > tata && cat tata || echo "NO"; cat tata | grep 1 > toto | cat tata
+ls -2 || echo "YES"; ls -l > test1 > test2 > test3 && cat test3 || echo "NO"; cat test3 | grep 1 > toto | cat test3
 ```
 
 ![graph](/github/graph.png)
