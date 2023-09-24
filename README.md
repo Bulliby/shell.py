@@ -1,6 +1,6 @@
 # Shell.py
 
-A basic shell, the grammar used is the following : [grammar](mygrammar)
+This a shell implementation of a **shell** in python following this : [grammar](mygrammar)
 
 I handle **Pipe**, simple **Redirection**, **Command**, **AND**, **OR** and **Semicolon**. It's schedule to make grow the grammar handled.
 
