@@ -23,7 +23,9 @@ import os
     close fd2 and duplicate fd so will be created with the fd2 number. 
 """
 
-class Pipe():
+from WaitProcess import WaitProcess
+
+class Pipe(WaitProcess):
 
     def __init__(self):
         self.r, self.w = os.pipe()
@@ -72,5 +74,5 @@ class Pipe():
                 os.execvp(cmd.cmd, cmd.suffix)
             os.close(self.r)
             os.close(self.w)
-        os.waitpid(pid, 0)
+        return self.waitProcess(pid)
 

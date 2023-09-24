@@ -11,7 +11,9 @@
 # **************************************************************************** #
 import os
 
-class Redir():
+from WaitProcess import WaitProcess
+
+class Redir(WaitProcess):
 
     def __init__(self):
         self.pid = None
@@ -42,7 +44,7 @@ class Redir():
             os.close(w)
             self.write(r, self.open(file), 1)
             os.close(r)
-            os.waitpid(self.pid, 0)
+            return self.waitProcess(self.pid)
 
     def write(self, fd, file, n):
         buf = os.read(fd, n)

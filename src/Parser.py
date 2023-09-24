@@ -78,6 +78,16 @@ class RedirOp():
     def __str__(self):
         return ";Redir with left value {0}, right value {1} and next {2}".format(self.left, self.right, self.next)
 
+class Boolean():
+    def __init__(self, left, right, nnext, operator):
+        self.left = left
+        self.right = right
+        self.next = nnext
+        self.operator = operator
+            
+    def __str__(self):
+        return ";Boolean with left value {0}, right value {1} and next {2}".format(self.left, self.right, self.next)
+
 class File():
     def __init__(self, file, redir_type):
         self.file = file 
@@ -122,28 +132,47 @@ class Parser(object):
 
     def program(self):
         """
-        program             : statements_list EOL
+        program             : commands EOL
         """
-        nodes = self.statements_list()
+        nodes = self.commands()
 
         node = Eol(nodes, 'EOL', None)
         self.eat(self.getToken(), None)
         
         return node
 
-    def statements_list(self):
+
+    def commands(self):
         """
-        commands            : pipes_redirs_list (SEMI pipes_redirs_list)*
+        commands            : boolean (SEMI boolean | SEMI)* | SEMI
         """
-        node = self.pipes_redirs_list()
+        node = self.boolean()
 
         semilicon = Semi(node)
         
         while self.getToken().token == 'SEMI':
             self.eat(self.getToken(), 'SEMI')
-            semilicon.childs.append(self.pipes_redirs_list())
-        
+            # Handle optional last semilicon
+            if self.getToken().token != None:
+                semilicon.childs.append(self.boolean())
+
         return semilicon
+
+    def boolean(self):
+        """
+        boolean             : pipes_redirs_list (AND | OR pipes_redirs_list)*
+        """
+        node = self.pipes_redirs_list()
+
+        operator = self.getToken().token
+
+        # && and || have the same precedence so they need to be treated in same condition
+        while operator in ['OR', 'AND']:
+            self.eat(self.getToken(), operator)
+            node = Boolean(node, self.pipes_redirs_list(), self.getToken().token, operator)
+            operator = self.getToken().token
+
+        return node
 
     def pipes_redirs_list(self):
         """

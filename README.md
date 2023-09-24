@@ -2,7 +2,7 @@
 
 A basic shell, the grammar used is the following : [grammar](mygrammar)
 
-I handle **Pipe**, simple **Redirection**, **Command** and **Semicolon**. It's schedule to make grow the grammar handled.
+I handle **Pipe**, simple **Redirection**, **Command**, **AND**, **OR** and **Semicolon**. It's schedule to make grow the grammar handled.
 
 It's a **POSIX** shell *(I believe)* because it follow GNU **sh** behaviour. 
 
@@ -24,10 +24,10 @@ For the **forks** logic and behaviour I one more time really appreciated the **l
 
 ## Graph
 
-Look this output for the following command it's awesome :
+Look this output for the following command:
 
 ```
-ls -l | grep --color=never ast | wc -l > toto | ls | grep I > tata > tutu | ls | wc -c > titi ; cat tata; cat toto; cat tutu
+ls -2 || echo "YES"; ls -l > toto > titi > tata && cat tata || echo "NO"; cat tata | grep 1 > toto | cat tata
 ```
 
 ![graph](/github/graph.png)
@@ -36,4 +36,4 @@ ls -l | grep --color=never ast | wc -l > toto | ls | grep I > tata > tutu | ls |
 
 # TODO
 
-On my **TODO** list i can put the **AND** and **OR** operator and error handling for commands.
+On my **TODO** list i can put **backtick** expansion, handle (simple|double) quote and error handling for commands.
