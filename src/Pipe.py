@@ -23,14 +23,13 @@ import os
     close fd2 and duplicate fd so will be created with the fd2 number. 
 """
 
-from WaitProcess import WaitProcess
+class Pipe():
 
-class Pipe(WaitProcess):
-
-    def __init__(self):
+    def __init__(self, handleProcesses):
         self.r, self.w = os.pipe()
         self.r2 = False 
         self.w2 = False
+        self.handleProcesses = handleProcesses
 
     def pipe_start(self, cmd):
         pid = os.fork()
@@ -38,7 +37,7 @@ class Pipe(WaitProcess):
             os.close(self.r)
             # Close stdout and duplicate w. (w is now stdout)
             os.dup2(self.w, 1)
-            os.execvp(cmd.cmd, cmd.suffix)
+            self.handleProcesses.exec(cmd)
         os.waitpid(pid, 0)
 
     def pipe_inter(self, cmd):
@@ -50,7 +49,7 @@ class Pipe(WaitProcess):
             # Close stdin and duplicate r. (r is now stdin)
             os.dup2(self.r, 0)
             os.dup2(self.w2, 1)
-            os.execvp(cmd.cmd, cmd.suffix)
+            self.handleProcesses.exec(cmd)
         os.close(self.w)
         os.close(self.r)
         self.r = self.r2
@@ -63,7 +62,7 @@ class Pipe(WaitProcess):
             if pid == 0:
                 os.close(self.w2)
                 os.dup2(self.r2, 0)
-                os.execvp(cmd.cmd, cmd.suffix)
+                self.handleProcesses.exec(cmd)
             os.close(self.r2)
             os.close(self.w2)
         else:
@@ -71,8 +70,8 @@ class Pipe(WaitProcess):
             if pid == 0:
                 os.close(self.w)
                 os.dup2(self.r, 0)
-                os.execvp(cmd.cmd, cmd.suffix)
+                self.handleProcesses.exec(cmd)
             os.close(self.r)
             os.close(self.w)
-        return self.waitProcess(pid)
+        return self.handleProcesses.waitProcess(pid)
 

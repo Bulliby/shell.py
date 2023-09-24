@@ -12,16 +12,17 @@
 
 import os
 
-from WaitProcess import WaitProcess
-
 """
 This class permit the execution of simple command. With no pipe or redir.
 """
 
-class SimpleCommand(WaitProcess):
+class SimpleCommand():
+
+    def __init__(self, handleProcesses):
+        self.handleProcesses = handleProcesses    
 
     def exec(self, node):
         pid = os.fork()
         if pid == 0:
-            os.execvp(node.cmd, node.suffix)
-        return self.waitProcess(pid)
+            self.handleProcesses.exec(node)
+        return self.handleProcesses.waitProcess(pid)

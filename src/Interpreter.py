@@ -20,14 +20,16 @@ from Parser import Boolean
 from Pipe import Pipe
 from SimpleCommand import SimpleCommand
 from Redir import Redir
+from HandleProcesses import HandleProcesses
 import os
 
 class Interpreter():
 
     def __init__(self):
-        self.pipe = Pipe()
-        self.redir = Redir()
-        self.cmd = SimpleCommand()
+        self.handleProcesses = HandleProcesses()
+        self.pipe = Pipe(self.handleProcesses)
+        self.redir = Redir(self.handleProcesses)
+        self.cmd = SimpleCommand(self.handleProcesses)
         # To handle && and ||
         self.lastStatus = None
 
@@ -59,7 +61,7 @@ class Interpreter():
         # to handle expression like ls -l > toto | ls -l | grep I > tata
         if type(node) is PipeSequence:
             for child in node.childs:
-                self.pipe = Pipe()
+                self.pipe = Pipe(self.handleProcesses)
                 self.visit_BinOp(child)
 
         if type(node) is PipeOp:

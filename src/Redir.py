@@ -11,11 +11,10 @@
 # **************************************************************************** #
 import os
 
-from WaitProcess import WaitProcess
+class Redir():
 
-class Redir(WaitProcess):
-
-    def __init__(self):
+    def __init__(self, handleProcesses):
+        self.handleProcesses = handleProcesses
         self.pid = None
 
     def exec_piped_redir(self, pipe, redirOp, file):
@@ -40,11 +39,11 @@ class Redir(WaitProcess):
             if self.pid == 0:
                 os.close(r)
                 os.dup2(w, 1)
-                os.execvp(cmd.cmd, cmd.suffix)
+                self.handleProcesses.exec(cmd)
             os.close(w)
             self.write(r, self.open(file), 1)
             os.close(r)
-            return self.waitProcess(self.pid)
+            return self.handleProcesses.waitProcess(self.pid)
 
     def write(self, fd, file, n):
         buf = os.read(fd, n)
