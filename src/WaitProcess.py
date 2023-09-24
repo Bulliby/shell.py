@@ -1,27 +1,26 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                                              #
-#    Exec.py                                                                   #
+#    Boolean.py                                                                #
 #                                                         ________             #
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
-#    Created: 2019/05/30 12:54:58 by bulliby            \     \_\ \     /      #
-#    Updated: 2022/06/30 13:33:29 by bulliby             \________/\/\_/       #
+#    Created: 2019/05/25 19:21:40 by bulliby            \     \_\ \     /      #
+#    Updated: 2019/05/30 12:09:40 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
 import os
 
 """
-This class permit the execution of simple command. With no pipe or redir.
+Used in Boolean operator shell "&& ||"
 """
 
-class Exec():
-    def __init__(self):
-        self.pid = None
+class WaitProcess():
 
-    def exec_cmd(self, node):
-        self.pid = os.fork()
-        if self.pid == 0:
-            os.execvp(node.cmd, node.suffix)
-        os.waitpid(self.pid, 0)
+    def waitProcess(self, pid):
+        status = os.waitpid(pid, 0)[1]
+        if os.WIFEXITED(status):
+            return os.WEXITSTATUS(status)
+        return 0
+

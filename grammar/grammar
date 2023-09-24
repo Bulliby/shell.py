@@ -1,6 +1,8 @@
 program             : commands EOL
 
-commands            : pipes_redirs_list (SEMI pipes_redirs_list)*
+commands            : boolean (SEMI boolean)* | SEMI
+
+boolean             : commands (AND | OR commands)*
 
 pipes_redirs_list   : redir_sequence (PIPE redir_sequence)*
 

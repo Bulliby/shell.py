@@ -16,10 +16,10 @@ from Parser import PipeOp
 from Parser import RedirOp
 from Parser import Semi
 from Parser import PipeSequence
+from Parser import Boolean
 from Pipe import Pipe
-from Exec import Exec
+from SimpleCommand import SimpleCommand
 from Redir import Redir
-from Boolean import Boolean
 import os
 
 class Interpreter():
@@ -27,8 +27,9 @@ class Interpreter():
     def __init__(self):
         self.pipe = Pipe()
         self.redir = Redir()
-        self.boolean = Boolean()
-        self.cmd = Exec()
+        self.cmd = SimpleCommand()
+        # To handle && and ||
+        self.lastStatus = None
 
     def visit_BinOp(self, node):
         if type(node) is Eol:
@@ -39,7 +40,7 @@ class Interpreter():
 
         # If we have only one command, we simply execute it
         if type(node) is Cmd and node.lonely == True:
-            return self.cmd.exec_cmd(node)
+            self.lastStatus = self.cmd.exec(node)
 
         if type(node) is File:
             return node
@@ -47,6 +48,13 @@ class Interpreter():
         if type(node) is Semi:
             for child in node.childs:
                 self.visit_BinOp(child)
+
+        if type(node) is Boolean:
+            left = self.visit_BinOp(node.left)
+            if node.operator == 'AND' and self.lastStatus == 0:
+                right = self.visit_BinOp(node.right)
+            if node.operator == 'OR' and self.lastStatus != 0:
+                right = self.visit_BinOp(node.right)
 
         # to handle expression like ls -l > toto | ls -l | grep I > tata
         if type(node) is PipeSequence:
@@ -60,7 +68,7 @@ class Interpreter():
             if node.start:
                 self.pipe.pipe_start(left)
             if node.next not in ['PIPE', 'GREAT']:
-                self.pipe.pipe_end(right)
+                self.lastStatus = self.pipe.pipe_end(right)
             else:
                 self.pipe.pipe_inter(right)
             return left
@@ -72,5 +80,5 @@ class Interpreter():
             if node.piped_before:
                 self.redir.exec_piped_redir(self.pipe, node, right)
             else:
-                self.redir.exec_redir(left, right, node)
+                self.lastStatus = self.redir.exec_redir(left, right, node)
             return left

@@ -104,5 +104,9 @@ class Lexer:
                 raise Exception("Invalid Character : " + self.currentChar())
 
         tokens.append(Token(None, 0))
+
+        # for token in tokens:
+        #     print(token)
+
         return tokens
 

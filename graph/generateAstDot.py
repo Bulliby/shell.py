@@ -7,16 +7,17 @@ python generateAstDot.py command_sample > ast.dot && dot -Tpng -o ast.png ast.do
 import argparse
 import textwrap
 
-from Lexer import Lexer
-from Parser import Parser
+from src.Lexer import Lexer
+from src.Parser import Parser
 
-from Parser import PipeOp
-from Parser import RedirOp
-from Parser import Cmd
-from Parser import Semi
-from Parser import PipeSequence
-from Parser import Eol
-from Parser import File
+from src.Parser import PipeOp
+from src.Parser import RedirOp
+from src.Parser import Cmd
+from src.Parser import Semi
+from src.Parser import PipeSequence
+from src.Parser import Eol
+from src.Parser import File
+from src.Parser import Boolean
 
 class ASTVisualizer():
     def __init__(self, parser):
@@ -55,6 +56,18 @@ class ASTVisualizer():
                 self.visit_BinOp(child)
                 s = '  node{} -> node{}\n'.format(node._num, child._num)
                 self.dot_body.append(s)
+
+        if type(node) is Boolean:
+            s = '  node{} [label="{}"]\n'.format(self.ncount, "bool")
+            self.dot_body.append(s)
+            node._num = self.ncount
+            self.ncount += 1
+            self.visit_BinOp(node.left)
+            s = '  node{} -> node{}\n'.format(node._num, node.left._num)
+            self.dot_body.append(s)
+            self.visit_BinOp(node.right)
+            s = '  node{} -> node{}\n'.format(node._num, node.right._num)
+            self.dot_body.append(s)
 
         if type(node) is PipeSequence:
             s = '  node{} [label="{}"]\n'.format(self.ncount, "pipes")

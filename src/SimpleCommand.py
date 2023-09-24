@@ -1,22 +1,27 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                                              #
-#    Boolean.py                                                                #
+#    Exec.py                                                                   #
 #                                                         ________             #
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
-#    Created: 2019/05/25 19:21:40 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/05/30 12:09:40 by bulliby             \________/\/\_/       #
+#    Created: 2019/05/30 12:54:58 by bulliby            \     \_\ \     /      #
+#    Updated: 2022/06/30 13:33:29 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
 
 import os
 
-class Boolean():
+from WaitProcess import WaitProcess
 
-    def checkStatus(self, pid):
-        status = os.waitpid(pid, 0)[1]
-        if os.WIFEXITED(status):
-            ret = os.WEXITSTATUS(status)
-            return ret
-        return 0
+"""
+This class permit the execution of simple command. With no pipe or redir.
+"""
+
+class SimpleCommand(WaitProcess):
+
+    def exec(self, node):
+        pid = os.fork()
+        if pid == 0:
+            os.execvp(node.cmd, node.suffix)
+        return self.waitProcess(pid)
