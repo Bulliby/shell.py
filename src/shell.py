@@ -1,3 +1,15 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                                              #
+#    shell.py                                                                  #
+#                                                         ________             #
+#    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
+#                                                       /    \  _\ \/ \/ /     #
+#    Created: 2023/09/29 13:09:30 by bulliby            \     \_\ \     /      #
+#    Updated: 2023/09/29 13:09:33 by bulliby             \________/\/\_/       #
+#                                                                              #
+# **************************************************************************** #
+
 from Lexer import Lexer
 from Parser import Parser
 from Parser import Cmd

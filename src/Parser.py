@@ -6,9 +6,10 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/03/02 20:02:11 by bulliby            \     \_\ \     /      #
-#    Updated: 2022/05/02 23:05:59 by waxer               \________/\/\_/       #
+#    Updated: 2023/09/29 13:09:18 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
+
 class Semi():
     def __init__(self, child):
         self.childs = [child]

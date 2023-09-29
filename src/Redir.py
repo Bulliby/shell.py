@@ -6,9 +6,10 @@
 #    By: bulliby <wellsguillaume+at+gmail.com>           /   ____/_  _  __     #
 #                                                       /    \  _\ \/ \/ /     #
 #    Created: 2019/05/11 18:32:24 by bulliby            \     \_\ \     /      #
-#    Updated: 2019/05/30 14:05:57 by bulliby             \________/\/\_/       #
+#    Updated: 2023/09/29 13:09:26 by bulliby             \________/\/\_/       #
 #                                                                              #
 # **************************************************************************** #
+
 import os
 
 class Redir():
